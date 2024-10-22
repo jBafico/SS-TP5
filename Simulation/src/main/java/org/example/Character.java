@@ -21,7 +21,7 @@ public abstract class Character { //This class is the abstract class of the Enti
     public boolean isCollidingWithCharacter(Character c, double nonSpawnR){
         final double deltaX = x - c.getX();
         final double deltaY = y - c.getY();
-        final double sigma = r + c.getR() + nonSpawnR;
+        final double sigma = r + c.getR() + nonSpawnR; // Here we add the nonSpawnR because there is an area where humans cant spawn near zombies
         final double deltaPosition= Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
         return (deltaPosition-sigma<0);

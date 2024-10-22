@@ -2,7 +2,6 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class PDSimulation { //Pedestrian Dynamics Simulation represents the model of the game
     private List<Character> characterList;  //This has all the characters in the arena
