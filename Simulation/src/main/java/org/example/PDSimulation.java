@@ -11,7 +11,16 @@ public class PDSimulation { //Pedestrian Dynamics Simulation represents the mode
 
     public PDSimulation(int Nh, int Nz, double Ra, double r) {
         wall= new Wall(Ra);
-        characterList = generateRandomCharacters(Nh, Nz, Ra, 1, r); //TODO check the vaue of the character inner radius
+        characterList = generateRandomCharacters(Nh, Nz, Ra, 1, r); //TODO check the value of the character inner radius
+    }
+
+    public void run(){
+        //TODO run simulation
+    }
+
+    private void transformHuman(Character c){ //This method transforms a Human to a Zombie
+        characterList.remove(c);
+        characterList.add(new Zombie(c.getId(), c.getX(), c.getY(), 0, 0, c.getR(), r));
     }
 
     private List<Character> generateRandomCharacters(int nh, int nz, double wallRadius, double characterRadius, double nonSpawnR) {

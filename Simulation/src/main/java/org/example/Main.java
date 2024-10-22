@@ -31,8 +31,9 @@ public class Main {
 
 
         System.out.println("Running simulation...");
-        PDSimulation simulation = new PDSimulation();
+        PDSimulation simulation = new PDSimulation(params.Nh(), params.Nz(), params.Ra(), params.r());
         //TODO run simulation
+        simulation.run();
         System.out.println("Simulation finished!");
     }
 }
