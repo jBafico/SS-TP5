@@ -1,8 +1,8 @@
 package org.example;
 
 public class Human extends Character {
-    public Human(int id, double x, double y, double vx, double vy, double r) {
-        super(id, x, y, vx, vy, r);
+    public Human(int id, double x, double y, double r) {
+        super(id, x, y, r);
     }
 
     @Override

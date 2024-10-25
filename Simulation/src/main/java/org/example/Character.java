@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public abstract class Character { //This class is the abstract class of the Entities of the model
     private int id;
     private double x;
@@ -14,6 +13,13 @@ public abstract class Character { //This class is the abstract class of the Enti
     private double vx;
     private double vy;
     private double r;
+
+    public Character(int id, double x, double y, double r){
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.r = r;
+    }
 
     public abstract void findTarget(); //This is the method that will set the heuristic of the entity, it will change its velocity
 

@@ -1,7 +1,16 @@
 {
-  "Nh": 5,
-  "Nz": 1,
-  "Ra": 11.0,
-  "r": 1.0
-
+  "minNh": 10,
+  "maxNh": 100,
+  "nhIncrement": 10,
+  "nz": 1,
+  "repetitions": 1,
+  "maxTime": 300,
+  "dt": 0.1,
+  "saveToMemoryDt": 5,
+  "ra": 11,
+  "r": 1,
+  "vzMax": 4,
+  "vhMax": 4,
+  "sleepTime": 3,
+  "characterRadius": 1
 }

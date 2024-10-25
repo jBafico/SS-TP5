@@ -4,10 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class Zombie extends Character{
-
-    private double nonSpawnR;
-    public Zombie(int id, double x, double y, double vx, double vy, double r, double nonSpawnR) {
-        super(id, x, y, vx, vy, r);
+    public Zombie(int id, double x, double y, double r) {
+        super(id, x, y, r);
     }
 
     @Override
