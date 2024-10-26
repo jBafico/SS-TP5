@@ -4,7 +4,6 @@ public record GlobalParams(
         int minNh, // Minimum number of humans to simulate
         int maxNh, // Maximum number of humasn to simulate
         int nhIncrement, // Increments to get from min to max
-        int nz, // Number of zombies
         int repetitions, // How many repetitions of each set of params
         double maxTime,
         double dt, // Integration step

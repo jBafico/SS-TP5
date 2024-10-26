@@ -2,7 +2,6 @@ package org.example;
 
 public record SimulationParams (
     int nh,
-    int nz,
     int repetition_no,
     double dt,
     double maxTime,

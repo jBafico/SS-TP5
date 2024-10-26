@@ -2,7 +2,6 @@
   "minNh": 10,
   "maxNh": 100,
   "nhIncrement": 10,
-  "nz": 1,
   "repetitions": 1,
   "maxTime": 300,
   "dt": 0.1,
