@@ -37,9 +37,9 @@ public class Main {
                 for (int nh = params.minNh(); nh <= params.maxNh(); nh += params.nhIncrement()) {
                     // Run the simulation
                     System.out.printf("Running simulation with nh: %d, repetition_no: %d\n", nh, repetition_no);
-                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, params.dt(), params.maxTime(), params.ra(), params.r(), params.vzMax(), params.vhMax(), params.sleepTime(), params.characterRadius());
-                    PDSimulation simulation = new PDSimulation();
-                    simulation.run(simulationParams);
+                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, params.dt(), params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta()), params.contagionTime());
+                    PDSimulation simulation = new PDSimulation(simulationParams);
+                    simulation.run();
                 }
             }
         } catch (Exception e) {

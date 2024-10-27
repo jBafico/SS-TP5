@@ -6,10 +6,14 @@
   "maxTime": 300,
   "dt": 0.1,
   "saveToMemoryDt": 5,
-  "ra": 11,
-  "r": 1,
+  "arenaRadius": 11,
+  "nonSpawnR": 1,
+  "rMin": 0.3,
+  "rMax": 1,
   "vzMax": 4,
   "vhMax": 4,
   "sleepTime": 3,
-  "characterRadius": 1
+  "tau": 1,
+  "beta": 1,
+  "contagionTime": 3
 }

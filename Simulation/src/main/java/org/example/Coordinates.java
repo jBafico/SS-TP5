@@ -9,9 +9,9 @@ public class Coordinates {
     private double x;
     private double y;
 
-    public static Coordinates generateRandomCoordinatesInCircle(double wallRadius, double particleRadius){
-        // generate random distance in the range [0, wallRadius - particleRadius]
-        double distanceFromCenter = Math.random() * (wallRadius - particleRadius);
+    public static Coordinates generateRandomCoordinatesInCircle(double circleRadius){
+        // generate random distance in the range [0, circleRadius)
+        double distanceFromCenter = Math.random() * (circleRadius);
         // generate random angle in radians (from 0 to 2pi)
         double angle = Math.random() * 2 * Math.PI;
 

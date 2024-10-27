@@ -4,35 +4,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PDSimulation { //Pedestrian Dynamics Simulation represents the model of the game
+    private final SimulationParams params;
+    private final CharacterConfig zombieConfig;
+    private final CharacterConfig humanConfig;
 
-    public SimulationResults run(SimulationParams params){
-        List<Character> initialCharacterList = generateRandomCharacters(params.nh(), params.ra(), params.characterRadius(), params.r()); //TODO check the value of the character inner radius
+    public PDSimulation(SimulationParams params){
+        this.params = params;
+        this.zombieConfig = new CharacterConfig(params.vzMax(), params.rMin(), params.rMax());
+        this.humanConfig = new CharacterConfig(params.vhMax(), params.rMin(), params.rMax());
+    }
+
+    public SimulationResults run(){
+        // Set Character
+        List<Character> initialCharacterList = generateRandomCharacters();
         
         return new SimulationResults(params, null);
     }
 
-    private void transformHuman(List<Character> characterList, Character c){ //This method transforms a Human to a Zombie
+    private void transformHuman(List<Character> characterList, Character c){
+        // This method transforms a Human to a Zombie
         characterList.remove(c);
-        characterList.add(new Zombie(c.getId(), c.getX(), c.getY(), c.getR()));
+        characterList.add(new Zombie(c.getCoordinates(), params.constants(), zombieConfig, params.contagionTime()));
     }
 
-    private List<Character> generateRandomCharacters(int nh, double wallRadius, double characterRadius, double nonSpawnR) {
+    private List<Character> generateRandomCharacters() {
         List<Character> generatedCharacters = new ArrayList<>();
-        Character newCharacter = new Zombie(0, 0, 0, characterRadius);
+        Character newCharacter = new Zombie(new Coordinates(0, 0), params.constants(), zombieConfig, 0);
         generatedCharacters.add(newCharacter);
 
-        // Generate nh Humans and nz Zombies
-        while (generatedCharacters.size() <= nh) {
+        // Generate nh Humans
+        while (generatedCharacters.size() <= params.nh()) {
             // Generate new characters with random coordinates
-            Coordinates coordinates = Coordinates.generateRandomCoordinatesInCircle(wallRadius-nonSpawnR, characterRadius);
-            newCharacter = new Human(generatedCharacters.size(), coordinates.getX(), coordinates.getY(), characterRadius);
+            Coordinates coordinates = Coordinates.generateRandomCoordinatesInCircle(params.arenaRadius()-params.nonSpawnR());
+            newCharacter = new Human(coordinates, params.constants(), humanConfig);
 
             // Check if new character collides with any other particle in the list
             boolean collides = false;
             for (Character c : generatedCharacters) {
-                if (newCharacter.isCollidingWithCharacter(c,
-                        (c instanceof Zombie) ? nonSpawnR : 0)) { // If the new character is a Human and c is a Zombie, the zombie has a nonSpawnRadius
+                // For any two characters, their rMin cannot overlap
+                if (c.isOverlapping(newCharacter)) {
                     collides = true;
+                }
+
+                // If it is a zombie, the distance has to be >= nonSpawnR
+                if (!collides && c instanceof Zombie) {
+                    double distanceToCollision = c.distanceToCollision(newCharacter);
+                    collides = distanceToCollision <= params.nonSpawnR();
+                }
+
+                if (collides) {
                     break;
                 }
             }

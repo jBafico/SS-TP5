@@ -5,10 +5,13 @@ public record SimulationParams (
     int repetition_no,
     double dt,
     double maxTime,
-    double ra,
-    double r,
+    double arenaRadius,
     double vzMax,
     double vhMax,
     double sleepTime,
-    double characterRadius
+    double rMin,
+    double rMax,
+    double nonSpawnR,
+    Constants constants,
+    double contagionTime
 ) {}
