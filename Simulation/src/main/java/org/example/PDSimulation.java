@@ -16,9 +16,12 @@ public class PDSimulation { //Pedestrian Dynamics Simulation represents the mode
 
     public SimulationResults run(){
         // Set Character
-        List<Character> initialCharacterList = generateRandomCharacters();
+        // We create a character list that we will be updating
+        List<Character> characterList = generateRandomCharacters();
+        List<List<Character>> resultsList = new ArrayList<>();
+        resultsList.add(characterList);
         
-        return new SimulationResults(params, null);
+        return new SimulationResults(params, resultsList);
     }
 
     private void transformHuman(List<Character> characterList, Character c){
