@@ -2,23 +2,21 @@ package org.example;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-@Setter
 @EqualsAndHashCode
 public abstract class Character { //This class is the abstract class of the Entities of the model
-    private Constants constants;
-    private Coordinates coordinates; // Current X and Y positions
-    private CharacterConfig config;
-    private double v; // Current velocity module
-    private double theta; // Current velocity direction in radians
-    private double r; // Current radius
-    private double remainingContagion; // The amount of time the character has to wait to move again
+    private final Constants constants;
+    private final Coordinates coordinates; // Current X and Y positions
+    private final CharacterConfig config;
+    private final double v; // Current velocity module
+    private final double theta; // Current velocity direction in radians
+    private final double r; // Current radius
+    private final double remainingContagion; // The amount of time the character has to wait to move again
 
     // Without contagion time
     public Character(Coordinates coordinates, Constants constants, CharacterConfig config){
@@ -26,6 +24,8 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.constants = constants;
         this.config = config;
         this.r = config.rMin(); // Characters initialize with rMin
+        this.v = 0;
+        this.theta = 0;
         this.remainingContagion = 0;
     }
 
@@ -35,6 +35,8 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.constants = constants;
         this.config = config;
         this.r = config.rMin(); // Characters initialize with rMin
+        this.v = 0;
+        this.theta = 0;
         this.remainingContagion = remainingContagion;
     }
 
