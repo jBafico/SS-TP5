@@ -1,16 +1,21 @@
 package org.example;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -39,7 +44,12 @@ public class Main {
                     System.out.printf("Running simulation with nh: %d, repetition_no: %d\n", nh, repetition_no);
                     SimulationParams simulationParams = new SimulationParams(nh, repetition_no, params.dt(), params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta()), params.contagionTime());
                     PDSimulation simulation = new PDSimulation(simulationParams);
-                    simulation.run();
+                    SimulationResults results= simulation.run();
+                    System.out.println("Simulation finished!");
+
+                    System.out.println("Writing output...");
+                    writeOutput(results, outputDirectoryPath.toString());
+                    System.out.println("Output written!");
                 }
             }
         } catch (Exception e) {
@@ -47,8 +57,7 @@ public class Main {
             System.exit(1);
         }
 
-        // Get the current timestamp
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
     }
 
     private static Path createSimulationOutputDirectory(LocalDateTime datetime) {
@@ -75,4 +84,28 @@ public class Main {
             return null; // Return null if there's an issue
         }
     }
+
+    public static void writeOutput(SimulationResults results, String outputDirectoryPath) {
+        try {
+            // Create the output directory if it doesn't exist
+            Files.createDirectories(Path.of(outputDirectoryPath));
+
+            // Create an ObjectMapper instance
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Define the output file with a unique name for each simulation result
+            String filename = String.format("simulation_nh_%d.json",
+                    results.params().nh());
+            File outputFile = new File(outputDirectoryPath, filename);
+
+            // Write the SimulationResults to the file in JSON format
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, results);
+
+            System.out.printf("Results successfully written to %s\n", outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
