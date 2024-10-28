@@ -4,11 +4,11 @@ import java.util.List;
 
 public class Human extends Character {
     public Human(Coordinates coordinates, Constants constants, CharacterConfig config) {
-        super(coordinates, constants, config);
+        super(coordinates, constants, config, "human");
     }
 
     private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
-        super(coordinates, constants, config, v, theta, r);
+        super(coordinates, constants, config, v, theta, r, "human");
     }
 
     @Override

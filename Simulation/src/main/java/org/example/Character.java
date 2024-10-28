@@ -17,9 +17,10 @@ public abstract class Character { //This class is the abstract class of the Enti
     private final double theta; // Current velocity direction in radians
     private final double r; // Current radius
     private final double remainingContagion; // The amount of time the character has to wait to move again
+    private final String type; // Type of character
 
     // Without contagion time
-    public Character(Coordinates coordinates, Constants constants, CharacterConfig config){
+    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, String type){
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
@@ -27,10 +28,11 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.v = 0;
         this.theta = 0;
         this.remainingContagion = 0;
+        this.type = type;
     }
 
     // With contagion time
-    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, double remainingContagion){
+    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, double remainingContagion, String type){
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
@@ -38,9 +40,10 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.v = 0;
         this.theta = 0;
         this.remainingContagion = remainingContagion;
+        this.type = type;
     }
 
-    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
+    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, String type){
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
@@ -48,6 +51,7 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.v = v;
         this.theta = theta;
         this.remainingContagion = 0;
+        this.type = type;
     }
 
     public double getX(){

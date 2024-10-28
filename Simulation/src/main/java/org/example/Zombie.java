@@ -7,11 +7,11 @@ import java.util.List;
 @Getter
 public class Zombie extends Character{
     public Zombie(Coordinates coordinates, Constants constants, CharacterConfig config, double contagionTime) {
-        super(coordinates, constants, config, contagionTime);
+        super(coordinates, constants, config, contagionTime, "zombie");
     }
 
     private Zombie(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
-        super(coordinates, constants, config, v, theta, r);
+        super(coordinates, constants, config, v, theta, r, "zombie");
     }
 
     @Override
