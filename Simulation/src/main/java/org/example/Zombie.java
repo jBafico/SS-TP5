@@ -10,6 +10,16 @@ public class Zombie extends Character{
         super(coordinates, constants, config, contagionTime);
     }
 
+    private Zombie(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
+        super(coordinates, constants, config, v, theta, r);
+    }
+
+    @Override
+    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r) {
+        return new Zombie(coordinates, this.getConstants(), this.getConfig(), v, theta, r);
+    }
+
+
     @Override
     protected double getNextTheta(List<Character> characterList, Wall wall) {
         /* The zombie just considers the nearest human and doesn't avoid obstacles */

@@ -1,9 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class PDSimulation { // Pedestrian Dynamics Simulation represents the model of the game
@@ -20,11 +18,38 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
     }
 
     public SimulationResults run(){
-        // Set Character
-        // We create a character list that we will be updating
-        List<Character> characterList = generateRandomCharacters();
         List<List<Character>> resultsList = new ArrayList<>();
+
+        // Create the wall
+        Wall wall = new Wall(params.arenaRadius());
+
+        // We create initial character list and add it
+        List<Character> characterList = generateRandomCharacters(wall);
         resultsList.add(characterList);
+
+        // Iterate until we reach maxTime or all characters are now zombies
+        for (double dt = 0; dt < params.maxTime(); dt+=params.dt()) {
+            List<Character> currentState = resultsList.getLast();
+
+            // Create the newState
+            List<Character> newState = new ArrayList<>();
+            final double currentDt = dt; // Because lambda expressions need a final variable
+            currentState.forEach(character -> {
+                newState.add(character.getNext(currentDt, currentState, wall));
+                if (character instanceof Human && ((Human) character).isCollidingWithZombie(currentState)) {
+                    transformHuman(characterList, character);
+                }
+            });
+
+            // Add the updated state to the results list
+            resultsList.add(newState);
+
+            // If every character is a zombie, end the simulation
+            if (newState.stream().allMatch(c -> c instanceof Zombie)) {
+                System.out.println("Finishing the simulation because all characters are now zombies");
+                break;
+            }
+        }
         
         return new SimulationResults(params, resultsList);
     }
@@ -35,7 +60,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         characterList.add(new Zombie(c.getCoordinates(), params.constants(), zombieConfig, params.contagionTime()));
     }
 
-    private List<Character> generateRandomCharacters() {
+    private List<Character> generateRandomCharacters(Wall wall) {
         List<Character> generatedCharacters = new ArrayList<>();
         Character newCharacter = new Zombie(new Coordinates(0, 0), params.constants(), zombieConfig, 0);
         generatedCharacters.add(newCharacter);
@@ -44,14 +69,14 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         double tries = 0;
         while (generatedCharacters.size() <= params.nh()) {
             // Generate new characters with random coordinates
-            Coordinates coordinates = Coordinates.generateRandomCoordinatesInCircle(params.arenaRadius()-params.nonSpawnR());
+            Coordinates coordinates = wall.generateRandomCoordinatesInWall(params.nonSpawnR());
             newCharacter = new Human(coordinates, params.constants(), humanConfig);
 
             // Check if new character collides with any other particle in the list
             boolean collides = false;
             for (Character c : generatedCharacters) {
                 // For any two characters, their rMin cannot overlap
-                if (c.isOverlapping(newCharacter)) {
+                if (c.isOverlappingWithCharacter(newCharacter)) {
                     collides = true;
                 }
 
@@ -81,7 +106,4 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         System.out.println("Finished generation");
         return generatedCharacters;
     }
-
-
-
 }

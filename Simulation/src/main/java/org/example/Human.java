@@ -7,6 +7,16 @@ public class Human extends Character {
         super(coordinates, constants, config);
     }
 
+    private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
+        super(coordinates, constants, config, v, theta, r);
+    }
+
+    @Override
+    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r) {
+        return new Human(coordinates, this.getConstants(), this.getConfig(), v, theta, r);
+    }
+
+
     @Override
     protected double getNextTheta(List<Character> characterList, Wall wall) {
         /* The human is more intelligent than the zombie, it tries to avoid humans, zombies and the wall */
@@ -70,5 +80,12 @@ public class Human extends Character {
 
         // Calculate and return the escape angle theta in radians
         return Math.atan2(escapeDeltaY, escapeDeltaX);
+    }
+
+    public boolean isCollidingWithZombie(List<Character> characterList) {
+        return characterList
+                .stream()
+                .filter(character -> character instanceof Zombie)
+                .anyMatch(this::isCollidingWithCharacter);
     }
 }

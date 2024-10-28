@@ -40,6 +40,16 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.remainingContagion = remainingContagion;
     }
 
+    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
+        this.coordinates = coordinates;
+        this.constants = constants;
+        this.config = config;
+        this.r = r;
+        this.v = v;
+        this.theta = theta;
+        this.remainingContagion = 0;
+    }
+
     public double getX(){
         return coordinates.getX();
     }
@@ -63,14 +73,20 @@ public abstract class Character { //This class is the abstract class of the Enti
         return this.coordinates.distanceTo(c.getCoordinates());
     }
 
-    // When the two rMax overlap
-    public boolean isColliding(Character c) {
+    // When the two r overlap
+    protected boolean isCollidingWithCharacter(Character c) {
         double distanceToCollision = distanceToCollision(c);
-        return distanceToCollision <= 2 * config.rMax();
+        return distanceToCollision <= r + c.r;
+    }
+
+    public boolean isCollidingWithSomeone(List<Character> characterList) {
+        return characterList
+                .stream()
+                .anyMatch(otherCharacter -> !otherCharacter.equals(this) && this.isCollidingWithCharacter(otherCharacter));
     }
 
     // When the two rMin overlap (this cannot happen ever)
-    public boolean isOverlapping(Character c) {
+    public boolean isOverlappingWithCharacter(Character c) {
         double distanceToCollision = distanceToCollision(c);
         return distanceToCollision <= 2 * config.rMin();
     }
@@ -94,13 +110,25 @@ public abstract class Character { //This class is the abstract class of the Enti
     // Calculate the desired angle of movement in radians
     protected abstract double getNextTheta(List<Character> characterList, Wall wall);
 
-    private Coordinates getNextCoordinates(boolean isColliding, double dt, List<Character> characterList, Wall wall){
-        double nextV = getNextV(isColliding);
-        double nextTheta = getNextTheta(characterList, wall);
-        double nextX = getX() + nextV * Math.cos(nextTheta) * dt;
-        double nextY = getY() + nextV * Math.sin(nextTheta) * dt;
+    private Coordinates getNextCoordinates(double dt){
+        double nextX = getX() + getVx() * dt;
+        double nextY = getY() + getVy() * dt;
         return new Coordinates(nextX, nextY);
     }
+
+    protected abstract Character createNextInstance(Coordinates coordinates, double v, double theta, double r);
+
+    public Character getNext(double dt, List<Character> characterList, Wall wall) {
+        Coordinates nextCoordinates = getNextCoordinates(dt); // Calculate the next position according to current speed and direction
+        double nextTheta = getNextTheta(characterList, wall); // Calculate next direction
+
+        boolean isColliding = isCollidingWithSomeone(characterList);
+        double nextV = getNextV(isColliding); // Calculate next speed
+        double nextR = getNextR(isColliding, dt); // Calculate next r
+
+        return createNextInstance(nextCoordinates, nextV, nextTheta, nextR);
+    }
+
 
     protected List<Character> findNNearestZombies(List<Character> characterList, int n, double maxFactor) {
         return findNNearestCharactersHelper(characterList, n, "human", maxFactor);
