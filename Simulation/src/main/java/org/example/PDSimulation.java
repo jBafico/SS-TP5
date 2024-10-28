@@ -1,7 +1,9 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class PDSimulation { // Pedestrian Dynamics Simulation represents the model of the game
@@ -79,4 +81,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         System.out.println("Finished generation");
         return generatedCharacters;
     }
+
+
+
 }

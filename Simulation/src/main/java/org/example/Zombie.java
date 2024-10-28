@@ -11,8 +11,18 @@ public class Zombie extends Character{
     }
 
     @Override
-    protected double getNextTheta(List<Character> characterList) {
-        return 0; // todo
+    protected double getNextTheta(List<Character> characterList, Wall wall) {
+        /* The zombie just considers the nearest human and doesn't avoid obstacles */
+
+        // Find the nearest human
+        Character nearestHuman = this.findNNearestHumans(characterList, 1, Double.MAX_VALUE).getFirst();
+
+        // Calculate the difference in x and y coordinates
+        double deltaX = nearestHuman.getX() - this.getX();
+        double deltaY = nearestHuman.getY() - this.getY();
+
+        // Calculate the angle theta in radians, using atan2 for correct quadrant
+        return Math.atan2(deltaY, deltaX);
     }
 
 }
