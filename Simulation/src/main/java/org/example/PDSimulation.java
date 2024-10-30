@@ -80,17 +80,12 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                     collides = true;
                 }
 
-                // If it is a zombie, the distance has to be >= nonSpawnR
-                if (!collides && c instanceof Zombie) {
-                    double distanceToCollision = c.distanceToCollision(newCharacter);
-                    collides = distanceToCollision <= params.nonSpawnR();
-                }
-
                 if (collides) {
                     tries++;
                     break;
                 }
             }
+
             // If the new character does not collide with any other character, add it to the list and reset the tries
             if (!collides) {
                 generatedCharacters.add(newCharacter);
