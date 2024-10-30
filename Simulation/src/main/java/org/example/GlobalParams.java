@@ -17,5 +17,6 @@ public record GlobalParams(
         double sleepTime, // Time to wait whan a human turns into zombie
         double tau, // Constant used in getNextR formula
         double beta, // Constant used in getNextV formula
+        double mu, // Constant used in getNextTheta formula
         double contagionTime // Time that the character remains inactive after contagion process
 ) { }

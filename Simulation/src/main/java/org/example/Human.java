@@ -18,7 +18,7 @@ public class Human extends Character {
 
 
     @Override
-    protected double getNextTheta(List<Character> characterList, Wall wall) {
+    protected double getNextDesiredTheta(List<Character> characterList, Wall wall) {
         /* The human is more intelligent than the zombie, it tries to avoid humans, zombies and the wall */
 
         int nearestZombiesToConsider = 4;

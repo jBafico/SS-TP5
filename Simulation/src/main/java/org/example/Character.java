@@ -112,7 +112,18 @@ public abstract class Character { //This class is the abstract class of the Enti
     }
 
     // Calculate the desired angle of movement in radians
-    protected abstract double getNextTheta(List<Character> characterList, Wall wall);
+    protected abstract double getNextDesiredTheta(List<Character> characterList, Wall wall);
+
+    // The real next theta is the desired theta plus some noise
+    private double getNextTheta(List<Character> characterList, Wall wall){
+        // noise is random value between [-1, 1]
+        double noise = Math.random() * 2 - 1;
+
+        // thetaNoise is random value between [-mu/2, mu/2]
+        double thetaNoise = noise * constants.mu() / 2;
+
+        return getNextDesiredTheta(characterList, wall) + thetaNoise;
+    }
 
     private Coordinates getNextCoordinates(double dt){
         double nextX = getX() + getVx() * dt;

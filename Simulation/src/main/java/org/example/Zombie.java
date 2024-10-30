@@ -21,7 +21,7 @@ public class Zombie extends Character{
 
 
     @Override
-    protected double getNextTheta(List<Character> characterList, Wall wall) {
+    protected double getNextDesiredTheta(List<Character> characterList, Wall wall) {
         /* The zombie just considers the nearest human and doesn't avoid obstacles */
 
         // Find the nearest human

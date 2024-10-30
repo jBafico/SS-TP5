@@ -42,7 +42,7 @@ public class Main {
                 for (int nh = params.minNh(); nh <= params.maxNh(); nh += params.nhIncrement()) {
                     // Run the simulation
                     System.out.printf("Running simulation with nh: %d, repetition_no: %d\n", nh, repetition_no);
-                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, params.dt(), params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta()), params.contagionTime());
+                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, params.dt(), params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime());
                     PDSimulation simulation = new PDSimulation(simulationParams);
                     SimulationResults results= simulation.run();
                     System.out.println("Simulation finished!");
@@ -94,8 +94,8 @@ public class Main {
             ObjectMapper objectMapper = new ObjectMapper();
 
             // Define the output file with a unique name for each simulation result
-            String filename = String.format("simulation_nh_%d.json",
-                    results.params().nh());
+            String filename = String.format("simulation_nh_%d_repetition_%d.json",
+                    results.params().nh(), results.params().repetition_no());
             File outputFile = new File(outputDirectoryPath, filename);
 
             // Write the SimulationResults to the file in JSON format
