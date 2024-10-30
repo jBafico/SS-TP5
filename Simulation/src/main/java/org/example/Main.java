@@ -42,9 +42,9 @@ public class Main {
                 for (int nh = params.minNh(); nh <= params.maxNh(); nh += params.nhIncrement()) {
                     // Run the simulation
                     System.out.printf("Running simulation with nh: %d, repetition_no: %d\n", nh, repetition_no);
-                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, params.dt(), params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime());
+                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, params.dt(), params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(), params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.maxLengthFactor(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha());
                     PDSimulation simulation = new PDSimulation(simulationParams);
-                    SimulationResults results= simulation.run();
+                    SimulationResults results = simulation.run();
                     System.out.println("Simulation finished!");
 
                     System.out.println("Writing output...");
@@ -56,8 +56,6 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
-
-
     }
 
     private static Path createSimulationOutputDirectory(LocalDateTime datetime) {

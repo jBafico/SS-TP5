@@ -25,14 +25,21 @@ public class Zombie extends Character{
         /* The zombie just considers the nearest human and doesn't avoid obstacles */
 
         // Find the nearest human
-        Character nearestHuman = this.findNNearestHumans(characterList, 1, Double.MAX_VALUE).getFirst();
+        Character nearestHuman = this.findNNearestHumans(characterList, 1, getConfig().maxLengthFactor()).getFirst();
 
         // Calculate the difference in x and y coordinates
         double deltaX = nearestHuman.getX() - this.getX();
         double deltaY = nearestHuman.getY() - this.getY();
 
+        double theta = Math.atan2(deltaY, deltaX);
+
+        // Adjust theta if it's in the wrong range
+        if (theta < 0) {
+            theta += 2 * Math.PI; // Convert to a positive angle in [0, 2π]
+        }
+
         // Calculate the angle theta in radians, using atan2 for correct quadrant
-        return Math.atan2(deltaY, deltaX);
+        return theta;
     }
 
 }

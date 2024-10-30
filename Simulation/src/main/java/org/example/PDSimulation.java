@@ -13,8 +13,8 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
 
     public PDSimulation(SimulationParams params){
         this.params = params;
-        this.zombieConfig = new CharacterConfig(params.vzMax(), params.rMin(), params.rMax());
-        this.humanConfig = new CharacterConfig(params.vhMax(), params.rMin(), params.rMax());
+        this.zombieConfig = new CharacterConfig(params.vzMax(), params.rMin(), params.rMax(), params.dt(), params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.maxLengthFactor(), params.zombieImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha());
+        this.humanConfig = new CharacterConfig(params.vhMax(), params.rMin(), params.rMax(), params.dt(), params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.maxLengthFactor(), params.humanImportanceDecayAlpha(), params.humanImportanceDecayAlpha(), params.wallImportanceDecayAlpha());
     }
 
     public SimulationResults run(){
@@ -33,9 +33,8 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
 
             // Create the newState
             List<Character> newState = new ArrayList<>();
-            final double currentDt = dt; // Because lambda expressions need a final variable
             currentState.forEach(character -> {
-                newState.add(character.getNext(currentDt, currentState, wall));
+                newState.add(character.getNext(currentState, wall));
                 if (character instanceof Human && ((Human) character).isCollidingWithZombie(currentState)) {
                     transformHuman(characterList, character);
                 }

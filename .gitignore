@@ -11,3 +11,4 @@ Visualization/__pycache__/load_most_recent_json.cpython-310.pyc
 Visualization/ex_1_output
 Visualization/Animations
 *.png
+/outputs

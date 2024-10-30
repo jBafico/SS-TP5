@@ -95,12 +95,12 @@ public abstract class Character { //This class is the abstract class of the Enti
         return distanceToCollision <= 2 * config.rMin();
     }
 
-    private double getNextR(boolean isColliding, double dt){
+    private double getNextR(boolean isColliding){
         if (isColliding){
             return config.rMin();
         }
 
-        return Math.min(config.rMax(), r + config.rMax() / (constants.tau() / dt));
+        return Math.min(config.rMax(), r + config.rMax() / (constants.tau() / config.dt()));
     }
 
     private double getNextV(boolean isColliding){
@@ -125,21 +125,21 @@ public abstract class Character { //This class is the abstract class of the Enti
         return getNextDesiredTheta(characterList, wall) + thetaNoise;
     }
 
-    private Coordinates getNextCoordinates(double dt){
-        double nextX = getX() + getVx() * dt;
-        double nextY = getY() + getVy() * dt;
+    private Coordinates getNextCoordinates(){
+        double nextX = getX() + getVx() * config.dt();
+        double nextY = getY() + getVy() * config.dt();
         return new Coordinates(nextX, nextY);
     }
 
     protected abstract Character createNextInstance(Coordinates coordinates, double v, double theta, double r);
 
-    public Character getNext(double dt, List<Character> characterList, Wall wall) {
-        Coordinates nextCoordinates = getNextCoordinates(dt); // Calculate the next position according to current speed and direction
+    public Character getNext(List<Character> characterList, Wall wall) {
+        Coordinates nextCoordinates = getNextCoordinates(); // Calculate the next position according to current speed and direction
         double nextTheta = getNextTheta(characterList, wall); // Calculate next direction
 
         boolean isColliding = isCollidingWithSomeone(characterList);
         double nextV = getNextV(isColliding); // Calculate next speed
-        double nextR = getNextR(isColliding, dt); // Calculate next r
+        double nextR = getNextR(isColliding); // Calculate next r
 
         return createNextInstance(nextCoordinates, nextV, nextTheta, nextR);
     }
@@ -170,7 +170,7 @@ public abstract class Character { //This class is the abstract class of the Enti
             .sorted(Comparator.comparingDouble(this::distanceToCollision))
             .toList();
 
-        if (characterList.isEmpty()){
+        if (filteredCharacters.isEmpty()){
             throw new Error("Unexpected error");
         }
 
