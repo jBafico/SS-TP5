@@ -6,7 +6,7 @@ import re
 
 def main():
     # Load JSON data
-    with open('../outputs/20241030_173901/simulation_nh_10_repetition_0.json', 'r') as file:
+    with open('../outputs/20241030_173901/simulation_nh_100_repetition_0.json', 'r') as file:
         data = json.load(file)
 
     arena_radius = data["params"]["arenaRadius"]
@@ -40,6 +40,7 @@ def main():
 
         # Save frame
         plt.savefig(f'frames/frame_{i:04d}.png')
+        print('Frame', i, 'saved')
         plt.close(fig)
 
     # Create GIF
