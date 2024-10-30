@@ -6,7 +6,7 @@ import re
 
 def main():
     # Load JSON data
-    with open('../outputs/20241030_173901/simulation_nh_10_repetition_0.json', 'r') as file:
+    with open('Simulation/outputs/20241030_195629/simulation_nh_100_repetition_0.json', 'r') as file:
         data = json.load(file)
 
     arena_radius = data["params"]["arenaRadius"]

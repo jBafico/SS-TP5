@@ -33,12 +33,19 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
 
             // Create the newState
             List<Character> newState = new ArrayList<>();
-            currentState.forEach(character -> {
-                newState.add(character.getNext(currentState, wall));
-                if (character instanceof Human && ((Human) character).isCollidingWithZombie(currentState)) {
-                    transformHuman(characterList, character);
+            currentState.forEach(character -> newState.add(character.getNext(currentState, wall)));
+
+
+            // Temporary list to queue characters to be added and deleted after iteration
+            List<Character> queuedDeletions = new ArrayList<>();
+
+            for(Character character : newState){
+                if (character instanceof Human && ((Human) character).isCollidingWithZombie(newState)) {
+                    queuedDeletions.add(character);
                 }
-            });
+            }
+
+            transformHumans(newState, queuedDeletions);
 
             // Add the updated state to the results list
             resultsList.add(newState);
@@ -53,10 +60,12 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         return new SimulationResults(params, resultsList);
     }
 
-    private void transformHuman(List<Character> characterList, Character c){
+    private void transformHumans(List<Character> characterList, List<Character> deleteList){
         // This method transforms a Human to a Zombie
-        characterList.remove(c);
-        characterList.add(new Zombie(c.getCoordinates(), params.constants(), zombieConfig, params.contagionTime()));
+        for (Character c : deleteList) {
+            characterList.remove(c);
+            characterList.add(new Zombie(c.getCoordinates(), params.constants(), zombieConfig, params.contagionTime()));
+        }
     }
 
     private List<Character> generateRandomCharacters(Wall wall) {
