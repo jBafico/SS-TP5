@@ -61,7 +61,7 @@ def generate_gif(): #TODO encapsulate the GIF making logic
 
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../outputs'
+    base_dir = '../Simulation/outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:
@@ -88,24 +88,6 @@ def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
 
     return data
 
-def load_most_recent_simulation_json(directory_path: str): #TODO make this grab all the files in a folder
-    # Define the pattern for matching the file names
-    pattern = re.compile(r"ex1_results_\d{8}_\d{6}\.json")
-
-    # Get a list of all files in the directory that match the pattern
-    files = [f for f in Path(directory_path).iterdir() if pattern.match(f.name)]
-
-    if not files:
-        print("No simulation files found.")
-        return None
-
-    # Sort files based on the timestamp in the filename
-    most_recent_file = max(files, key=lambda f: f.stem.split('_')[1:])
-
-    # Open and return the JSON data from the file
-    with most_recent_file.open('r') as file:
-        print(f'Opening file {most_recent_file.name}')
-        return json.load(file)
 
 def ensure_output_directory_creation(directory):
     # Check if the directory exists, if not, create it
