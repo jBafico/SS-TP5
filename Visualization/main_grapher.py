@@ -6,8 +6,7 @@ import re
 
 def main():
     # Load JSON data
-    with open('Simulation/outputs/20241030_195629/simulation_nh_100_repetition_0.json', 'r') as file:
-        data = json.load(file)
+    data = load_simulation_data(10, 0)
 
     arena_radius = data["params"]["arenaRadius"]
     results = data["results"]
@@ -57,9 +56,37 @@ def main():
 
 
 def generate_gif(): #TODO encapsulate the GIF making logic
-    return 
+    return
 
 
+def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
+    # Base directory where the simulation files are stored
+    base_dir = '../outputs'
+
+    # Determine the directory based on the timestamp or find the newest one
+    if timestamp:
+        target_dir = os.path.join(base_dir, timestamp)
+    else:
+        # Get all timestamped directories in the outputs folder
+        directories = [
+            d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))
+        ]
+        # Sort directories by descending timestamp to get the latest one
+        directories.sort(reverse=True)
+        target_dir = os.path.join(base_dir, directories[0]) if directories else None
+
+    if not target_dir:
+        raise FileNotFoundError("No directories found with the given or latest timestamp.")
+
+    # Construct the filename and path
+    file_name = f"simulation_nh_{nh}_repetition_{repetition_no}.json"
+    file_path = os.path.join(target_dir, file_name)
+
+    # Open and load the file
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+
+    return data
 
 def load_most_recent_simulation_json(directory_path: str): #TODO make this grab all the files in a folder
     # Define the pattern for matching the file names
