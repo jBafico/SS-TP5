@@ -171,7 +171,7 @@ public abstract class Character { //This class is the abstract class of the Enti
             .toList();
 
         if (filteredCharacters.isEmpty()){
-            throw new Error("Unexpected error");
+            return filteredCharacters;
         }
 
         // Get the distance to the nearest character if any are found
