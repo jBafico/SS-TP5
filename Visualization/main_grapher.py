@@ -6,7 +6,7 @@ import re
 
 def main():
     # Load JSON data
-    data = load_simulation_data(10, 0)
+    data = load_simulation_data(50, 0)
 
     arena_radius = data["params"]["arenaRadius"]
     results = data["results"]
@@ -19,6 +19,8 @@ def main():
 
     # Generate frames
     for i, frame in enumerate(results):
+        if i % 10 != 0:
+            continue
         fig, ax = plt.subplots()
         ax.set_xlim(-arena_radius, arena_radius)
         ax.set_ylim(-arena_radius, arena_radius)
@@ -43,11 +45,7 @@ def main():
         plt.close(fig)
 
     # Create GIF
-    with imageio.get_writer('Animations/simulation.gif', mode='I', duration=data["params"]["dt"]) as writer:
-        for i in range(len(results)):
-            frame_path = f'frames/frame_{i:04d}.png'
-            image = imageio.imread(frame_path)
-            writer.append_data(image)
+    generate_gif(data)
 
     # Clean up frames
     for file in os.listdir('frames'):
@@ -55,13 +53,28 @@ def main():
     os.rmdir('frames')
 
 
-def generate_gif(): #TODO encapsulate the GIF making logic
-    return
+def generate_gif(data):
+    # Regular expression to extract frame numbers
+    frame_pattern = re.compile(r'frame_(\d+)\.png')
+
+    # Get a sorted list of frame files that match the pattern
+    frame_dir = 'frames'
+    frames = sorted(
+        (f for f in os.listdir(frame_dir) if frame_pattern.match(f)),
+        key=lambda x: int(frame_pattern.search(x).group(1))  # Sort by frame number
+    )
+
+    # Create GIF
+    with imageio.get_writer('Animations/simulation.gif', mode='I', duration=data["params"]["dt"]) as writer:
+        for frame_file in frames:
+            frame_path = os.path.join(frame_dir, frame_file)
+            image = imageio.imread(frame_path)
+            writer.append_data(image)
 
 
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../Simulation/outputs'
+    base_dir = '../outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:
