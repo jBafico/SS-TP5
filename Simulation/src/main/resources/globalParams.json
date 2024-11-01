@@ -4,7 +4,7 @@
   "nhIncrement": 5,
   "repetitions": 1,
   "maxTime": 300,
-  "dt": 0.05,
+  "dt": 0.005,
   "saveToMemoryDt": 5,
   "arenaRadius": 11,
   "nonSpawnR": 1,
