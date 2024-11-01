@@ -6,16 +6,30 @@ import re
 
 def main():
     # Load JSON data
-    data = load_simulation_data(50, 0)
+    data = load_simulation_data(10, 0)
 
+    # Generate frames
+    generate_frames(data)
+
+    # Create GIF
+    generate_gif(data, 5, 10000)
+
+    # Clean up frames
+    for file in os.listdir('frames'):
+        os.remove(f'frames/{file}')
+    os.rmdir('frames')
+
+
+def generate_frames(data):
     arena_radius = data["params"]["arenaRadius"]
     results = data["results"]
 
     ensure_output_directory_creation('Animations')
 
-    # Create folder for frames
-    if not os.path.exists('frames'):
-        os.makedirs('frames')
+    # Delete old frames folder if exists and create a new one
+    if os.path.exists('frames'):
+        os.rmdir('frames')
+    os.makedirs('frames')
 
     # Generate frames
     for i, frame in enumerate(results):
@@ -44,16 +58,8 @@ def main():
         print('Frame', i, 'saved')
         plt.close(fig)
 
-    # Create GIF
-    generate_gif(data)
 
-    # Clean up frames
-    for file in os.listdir('frames'):
-        os.remove(f'frames/{file}')
-    os.rmdir('frames')
-
-
-def generate_gif(data):
+def generate_gif(data, skip_frames = 1, max_frames = 100000):
     # Regular expression to extract frame numbers
     frame_pattern = re.compile(r'frame_(\d+)\.png')
 
@@ -63,13 +69,19 @@ def generate_gif(data):
         (f for f in os.listdir(frame_dir) if frame_pattern.match(f)),
         key=lambda x: int(frame_pattern.search(x).group(1))  # Sort by frame number
     )
+    frames = frames[:max_frames]
 
     # Create GIF
     with imageio.get_writer('Animations/simulation.gif', mode='I', duration=data["params"]["dt"]) as writer:
+        counter = 0
         for frame_file in frames:
+            counter += 1
+            if counter % skip_frames != 0:
+                continue
             frame_path = os.path.join(frame_dir, frame_file)
             image = imageio.imread(frame_path)
             writer.append_data(image)
+            print(f'Creating GIF: {counter/len(frames)*100:.2f}% done. {counter/skip_frames}/{len(frames)/skip_frames} frames processed.')
 
 
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
