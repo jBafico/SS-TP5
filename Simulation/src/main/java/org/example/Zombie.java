@@ -10,13 +10,13 @@ public class Zombie extends Character{
         super(coordinates, constants, config, contagionTime, "zombie");
     }
 
-    private Zombie(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
-        super(coordinates, constants, config, v, theta, r, "zombie");
+    private Zombie(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion) {
+        super(coordinates, constants, config, v, theta, r, "zombie", remainingContagion);
     }
 
     @Override
-    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r) {
-        return new Zombie(coordinates, this.getConstants(), this.getConfig(), v, theta, r);
+    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion) {
+        return new Zombie(coordinates, this.getConstants(), this.getConfig(), v, theta, r, remainingContagion);
     }
 
     private Zombie isCollidingWithZombie(List<Character> characterList) {

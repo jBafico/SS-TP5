@@ -7,13 +7,13 @@ public class Human extends Character {
         super(coordinates, constants, config, "human");
     }
 
-    private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r){
-        super(coordinates, constants, config, v, theta, r, "human");
+    private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion) {
+        super(coordinates, constants, config, v, theta, r, "human", remainingContagion);
     }
 
     @Override
-    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r) {
-        return new Human(coordinates, this.getConstants(), this.getConfig(), v, theta, r);
+    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion) {
+        return new Human(coordinates, this.getConstants(), this.getConfig(), v, theta, r, remainingContagion);
     }
 
 
@@ -89,10 +89,13 @@ protected double getNextDesiredTheta(List<Character> characterList, Wall wall) {
     return escapeAngle;
 }
 
-    public boolean isCollidingWithZombie(List<Character> characterList) {
+    public Zombie collidingZombie(List<Character> characterList) {
+        // Return all the colliding zombies
         return characterList
                 .stream()
-                .filter(character -> character instanceof Zombie)
-                .anyMatch(this::isCollidingWithCharacter);
+                .filter(c -> c instanceof Zombie && this.isCollidingWithCharacter(c))
+                .map(c -> (Zombie) c)
+                .findFirst()
+                .orElse(null);
     }
 }

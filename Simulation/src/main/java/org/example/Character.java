@@ -43,14 +43,14 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.type = type;
     }
 
-    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, String type){
+    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, String type, double remainingContagion) {
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
         this.r = r;
         this.v = v;
         this.theta = theta;
-        this.remainingContagion = 0;
+        this.remainingContagion = remainingContagion;
         this.type = type;
     }
 
@@ -131,9 +131,14 @@ public abstract class Character { //This class is the abstract class of the Enti
         return new Coordinates(nextX, nextY);
     }
 
-    protected abstract Character createNextInstance(Coordinates coordinates, double v, double theta, double r);
+    protected abstract Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion);
 
     public Character getNext(List<Character> characterList, Wall wall) {
+
+        if (remainingContagion > 0) {
+            return createNextInstance(coordinates, 0, 0, config.rMin(), remainingContagion - config.dt());
+        }
+
         Coordinates nextCoordinates = getNextCoordinates(); // Calculate the next position according to current speed and direction
         double nextTheta = getNextTheta(characterList, wall); // Calculate next direction
 
@@ -141,7 +146,7 @@ public abstract class Character { //This class is the abstract class of the Enti
         double nextV = getNextV(isColliding); // Calculate next speed
         double nextR = getNextR(isColliding); // Calculate next r
 
-        return createNextInstance(nextCoordinates, nextV, nextTheta, nextR);
+        return createNextInstance(nextCoordinates, nextV, nextTheta, nextR, 0);
     }
 
 

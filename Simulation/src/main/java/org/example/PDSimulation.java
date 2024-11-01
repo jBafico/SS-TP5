@@ -1,7 +1,9 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class PDSimulation { // Pedestrian Dynamics Simulation represents the model of the game
@@ -36,16 +38,31 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
             currentState.forEach(character -> newState.add(character.getNext(currentState, wall)));
 
 
-            // Temporary list to queue characters to be added and deleted after iteration
-            List<Character> queuedDeletions = new ArrayList<>();
+            // Temporary set to store the characters participating in contagion process
+            Set<Character> contagionCharacters = new HashSet<>();
 
             for(Character character : newState){
-                if (character instanceof Human && ((Human) character).isCollidingWithZombie(newState)) {
-                    queuedDeletions.add(character);
+                if (!(character instanceof Human)) {
+                    continue;
                 }
+                Human human = (Human) character;
+                Zombie collidingZombie = human.collidingZombie(newState);
+
+                // If the human is not colliding with any zombies, continue to the next human
+                if (collidingZombie == null) {
+                    continue;
+                }
+
+                // If the human was already in the contagion process, continue to the next human
+                if (human.getRemainingContagion() > 0) {
+                    continue;
+                }
+
+                contagionCharacters.add(human);
+                contagionCharacters.add(collidingZombie);
             }
 
-            transformHumans(newState, queuedDeletions);
+            transformHumans(newState, contagionCharacters);
 
             // Add the updated state to the results list
             resultsList.add(newState);
@@ -60,9 +77,9 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         return new SimulationResults(params, resultsList);
     }
 
-    private void transformHumans(List<Character> characterList, List<Character> deleteList){
+    private void transformHumans(List<Character> characterList, Set<Character> contagionCharacters){
         // This method transforms a Human to a Zombie
-        for (Character c : deleteList) {
+        for (Character c : contagionCharacters) {
             characterList.remove(c);
             characterList.add(new Zombie(c.getCoordinates(), params.constants(), zombieConfig, params.contagionTime()));
         }
