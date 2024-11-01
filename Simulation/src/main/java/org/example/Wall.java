@@ -25,22 +25,18 @@ public class Wall {
         return new Coordinates(nearestX, nearestY);
     }
 
-    public double reflectAngle(Coordinates impactPoint, double incomingAngle) {
-        // Calculate the normal angle at the impact point
-        double normalAngle = Math.atan2(impactPoint.getY(), impactPoint.getX());
+    public double reflectAngle(Coordinates impactPoint) {
+        // Calculate the angle from the impact point to the center of the circle (the origin)
+        double angleToCenter = Math.atan2(-impactPoint.getY(), -impactPoint.getX());
 
-        // Calculate the reflected angle
-        double reflectedAngle = 2 * normalAngle - incomingAngle;
-
-        // Normalize the reflected angle to be within the range [0, 2π]
-        if (reflectedAngle < 0) {
-            reflectedAngle += 2 * Math.PI;
-        } else if (reflectedAngle >= 2 * Math.PI) {
-            reflectedAngle -= 2 * Math.PI;
+        // Normalize the angle to be within the range [0, 2π]
+        if (angleToCenter < 0) {
+            angleToCenter += 2 * Math.PI;
         }
 
-        return reflectedAngle;
+        return angleToCenter;
     }
+
 
     public Coordinates generateRandomCoordinatesInWall(double nonSpawnR) {
         // generate random distance in the range [nonSpawnR, circleRadius-nonSpawnR)

@@ -21,7 +21,7 @@ public class Zombie extends Character{
 
     private Zombie isCollidingWithZombie(List<Character> characterList) {
         for (Character character : characterList) {
-            if (character instanceof Zombie && this.distanceToCollision(character) < 0) {
+            if (character != this && character instanceof Zombie && this.distanceToCollision(character) < getConfig().rMin() + character.getConfig().rMin()) {
                 return (Zombie) character;
             }
         }

@@ -83,7 +83,7 @@ protected double getNextDesiredTheta(List<Character> characterList, Wall wall) {
 
     // 6. Check for boundary collision and adjust angle if near boundary
     if (wallDistance < getR()) {
-        escapeAngle = wall.reflectAngle(nearestPointToWall, escapeAngle);
+        escapeAngle = wall.reflectAngle(nearestPointToWall);
     }
 
     return escapeAngle;
