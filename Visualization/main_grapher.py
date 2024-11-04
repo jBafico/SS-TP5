@@ -30,6 +30,7 @@ def main():
     archivos = glob.glob(os.path.join(ruta_archivos, '*.json'))
     
     if config["frac_zombie"]: #TODO hacer graficos zombies vs tiempo
+        zombies_por_tiempo = {} # guarda la cantidad de zombies por tiempo
         fracciones_por_tiempo = {}  # Guarda las fracciones de zombies en función del tiempo para cada simulación
         fraccion_final_por_humanos = []  # Guarda la fracción final de zombies para cada número de humanos iniciales
 
@@ -42,6 +43,7 @@ def main():
                 resultados = data['results']  # Datos de resultados por frame
                 tiempos = []
                 fracciones_zombies = []
+                n_zombies=[]
 
                 # Iterar sobre cada frame de la simulación
                 for frame_no, frame in enumerate(resultados):
@@ -49,17 +51,19 @@ def main():
                     num_zombies = sum(1 for entity in frame if entity["type"] == "zombie")
                     fraccion_zombies = num_zombies / (num_humanos + 1)
                     tiempos.append(frame_no * data['params']['dt'])
+                    n_zombies.append(num_zombies)
                     fracciones_zombies.append(fraccion_zombies)
                 
                 # Guardar los datos para graficar en función del tiempo
                 fracciones_por_tiempo[nh] = (tiempos, fracciones_zombies)
+                zombies_por_tiempo[nh]= (tiempos, n_zombies)
 
                 final_fraction = fraccion_zombies[-1] if isinstance(fraccion_zombies, list) else fraccion_zombies
                 
                 # Guardar la fracción final de zombies al final de la simulación
                 fraccion_final_por_humanos.append((nh, final_fraction))
 
-            
+        zombies_vs_time(zombies_por_tiempo)
         frac_zombies_vs_time(fracciones_por_tiempo)
         frac_zombies_vs_nh(fraccion_final_por_humanos)
 
@@ -155,6 +159,27 @@ def generate_gif(data, skip_frames = 1, max_frames = 100000):
             writer.append_data(image)
             print(f'Creating GIF: {counter/len(frames)*100:.2f}% done. {counter/skip_frames}/{len(frames)/skip_frames} frames processed.')
 
+def zombies_vs_time(zombies_por_tiempo):
+    ensure_output_directory_creation('zombies_vs_time')
+    plt.figure(figsize=(10, 6))
+    for nh, (tiempos, zombies) in zombies_por_tiempo.items():
+        plt.plot(tiempos, zombies, label=f'Nh: {nh}')
+
+    plt.xlabel('Time (s)')
+    plt.ylabel('N_z')
+    plt.legend()
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join('zombies_vs_time', f"zombies_vs_time.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+    print(f"Saved plot to '{file_path}'")
+
 def frac_zombies_vs_time(fracciones_por_tiempo):
     ensure_output_directory_creation('frac_zombies_vs_time')
     plt.figure(figsize=(10, 6))
@@ -208,7 +233,7 @@ def avg_v_vs_time(velocidades_por_tiempo):
         plt.plot(tiempos, velocidades, label=f'N_h = {nh}')
 
     plt.xlabel("Time (s)")
-    plt.ylabel("$\\langle \\frac{\\varepsilon}{m/s} \\rangle$")
+    plt.ylabel("$\\langle \\bar{v}(m/s) \\rangle$")
     plt.legend()
      # Define the output file path with dt in the filename
     file_path = os.path.join('avg_v_vs_time', f"avg_v_vs_time.png")
