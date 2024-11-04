@@ -74,12 +74,14 @@ def main():
                 data = json.load(f)
                 nh = data['params']['nh']  # Número de humanos iniciales
                 resultados = data['results']  # Datos de resultados por frame
+                tiempos = []
                 velocidades_medias = []
 
                 for frame_no, frame in enumerate(resultados):
                     # Calcular la velocidad media para este frame
                     velocidades = [entity['velocity'] for entity in frame if 'velocity' in entity]
                     velocidad_media = np.mean(velocidades) if velocidades else 0
+                    tiempos.append(frame_no * data['params']['dt'])
                     velocidades_medias.append(velocidad_media)
 
                 velocidades_por_tiempo[nh] = (tiempos, velocidades_medias)
@@ -206,7 +208,7 @@ def avg_v_vs_time(velocidades_por_tiempo):
         plt.plot(tiempos, velocidades, label=f'N_h = {nh}')
 
     plt.xlabel("Time (s)")
-    plt.ylabel("Velocidad media del sistema")
+    plt.ylabel("$\\langle \\frac{\\varepsilon}{m/s} \\rangle$")
     plt.legend()
      # Define the output file path with dt in the filename
     file_path = os.path.join('avg_v_vs_time', f"avg_v_vs_time.png")
