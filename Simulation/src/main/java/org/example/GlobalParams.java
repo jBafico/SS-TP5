@@ -9,8 +9,6 @@ public record GlobalParams(
 
         // Parameters that are constant between simulations
         double maxTime, // When reached stop the simulation
-        double dt, // Integration step
-        int saveToMemoryDt, // Save to memory every X dts
         double arenaRadius, // Radius of arena
         double nonSpawnR, // non-spawnable radius from arena wall and initial zombie
         double rMin, // Min (physical) radius for characters

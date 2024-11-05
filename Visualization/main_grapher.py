@@ -6,21 +6,18 @@ import re
 import glob
 import numpy as np
 
+
 def main():
     with open("./config.json", "r") as f:
-            config = json.load(f)
+        config = json.load(f)
 
     if config["animations"]:
         # Load JSON data
         data = load_simulation_data(10, 0)
-
-        
         # Generate frames
         generate_frames(data)
-
         # Create GIF
         generate_gif(data, 5, 10000)
-
         # Clean up frames
         for file in os.listdir('frames'):
             os.remove(f'frames/{file}')
@@ -28,12 +25,11 @@ def main():
 
     ruta_archivos = get_output_directory()
     archivos = glob.glob(os.path.join(ruta_archivos, '*.json'))
-    
-    if config["frac_zombie"]: #TODO hacer graficos zombies vs tiempo
-        zombies_por_tiempo = {} # guarda la cantidad de zombies por tiempo
+
+    if config["frac_zombie"]:  #TODO hacer graficos zombies vs tiempo
+        zombies_por_tiempo = {}  # guarda la cantidad de zombies por tiempo
         fracciones_por_tiempo = {}  # Guarda las fracciones de zombies en función del tiempo para cada simulación
         fraccion_final_por_humanos = []  # Guarda la fracción final de zombies para cada número de humanos iniciales
-
 
         # Iterar sobre cada archivo JSON
         for archivo in archivos:
@@ -43,7 +39,7 @@ def main():
                 resultados = data['results']  # Datos de resultados por frame
                 tiempos = []
                 fracciones_zombies = []
-                n_zombies=[]
+                n_zombies = []
 
                 # Iterar sobre cada frame de la simulación
                 for frame_no, frame in enumerate(resultados):
@@ -53,13 +49,13 @@ def main():
                     tiempos.append(frame_no * data['params']['dt'])
                     n_zombies.append(num_zombies)
                     fracciones_zombies.append(fraccion_zombies)
-                
+
                 # Guardar los datos para graficar en función del tiempo
                 fracciones_por_tiempo[nh] = (tiempos, fracciones_zombies)
-                zombies_por_tiempo[nh]= (tiempos, n_zombies)
+                zombies_por_tiempo[nh] = (tiempos, n_zombies)
 
                 final_fraction = fraccion_zombies[-1] if isinstance(fraccion_zombies, list) else fraccion_zombies
-                
+
                 # Guardar la fracción final de zombies al final de la simulación
                 fraccion_final_por_humanos.append((nh, final_fraction))
 
@@ -70,7 +66,6 @@ def main():
     if config["avg_v"]:
         velocidades_por_tiempo = {}  # Guarda las velocidades medias en función del tiempo para cada simulación
         velocidad_media_por_humanos = []  # Guarda la velocidad media al final de la simulación para cada número de humanos iniciales
-
 
         # Iterar sobre cada archivo JSON
         for archivo in archivos:
@@ -91,7 +86,7 @@ def main():
                 velocidades_por_tiempo[nh] = (tiempos, velocidades_medias)
 
         avg_v_vs_time(velocidades_por_tiempo)
-        
+
         #TODO este grafico
         #avg_v_vs_nh(velocidad_media_por_humanos)
 
@@ -135,7 +130,7 @@ def generate_frames(data):
         plt.close(fig)
 
 
-def generate_gif(data, skip_frames = 1, max_frames = 100000):
+def generate_gif(data, skip_frames=1, max_frames=100000):
     # Regular expression to extract frame numbers
     frame_pattern = re.compile(r'frame_(\d+)\.png')
 
@@ -157,7 +152,8 @@ def generate_gif(data, skip_frames = 1, max_frames = 100000):
             frame_path = os.path.join(frame_dir, frame_file)
             image = imageio.imread(frame_path)
             writer.append_data(image)
-            print(f'Creating GIF: {counter/len(frames)*100:.2f}% done. {counter/skip_frames}/{len(frames)/skip_frames} frames processed.')
+            print(f'Creating GIF: {counter / len(frames) * 100:.2f}% done. {counter / skip_frames}/{len(frames) / skip_frames} frames processed.')
+
 
 def zombies_vs_time(zombies_por_tiempo):
     ensure_output_directory_creation('zombies_vs_time')
@@ -180,6 +176,7 @@ def zombies_vs_time(zombies_por_tiempo):
 
     print(f"Saved plot to '{file_path}'")
 
+
 def frac_zombies_vs_time(fracciones_por_tiempo):
     ensure_output_directory_creation('frac_zombies_vs_time')
     plt.figure(figsize=(10, 6))
@@ -200,7 +197,7 @@ def frac_zombies_vs_time(fracciones_por_tiempo):
     plt.clf()
 
     print(f"Saved plot to '{file_path}'")
-    
+
 
 def frac_zombies_vs_nh(fraccion_final_por_humanos):
     ensure_output_directory_creation('frac_zombies_vs_nh')
@@ -212,7 +209,7 @@ def frac_zombies_vs_nh(fraccion_final_por_humanos):
     plt.xlabel('N_h')
     plt.ylabel('$\\langle \\phi_z ^final \\rangle$')
     plt.grid(True)
-    
+
     # Define the output file path with dt in the filename
     file_path = os.path.join('frac_zombies_vs_nh', f"frac_zombies_vs_nh.png")
 
@@ -223,7 +220,7 @@ def frac_zombies_vs_nh(fraccion_final_por_humanos):
     plt.clf()
 
     print(f"Saved plot to '{file_path}'")
-    
+
 
 def avg_v_vs_time(velocidades_por_tiempo):
     ensure_output_directory_creation('avg_v_vs_time')
@@ -235,7 +232,7 @@ def avg_v_vs_time(velocidades_por_tiempo):
     plt.xlabel("Time (s)")
     plt.ylabel("$\\langle \\bar{v}(m/s) \\rangle$")
     plt.legend()
-     # Define the output file path with dt in the filename
+    # Define the output file path with dt in the filename
     file_path = os.path.join('avg_v_vs_time', f"avg_v_vs_time.png")
 
     # Save the plot to the file
@@ -245,12 +242,11 @@ def avg_v_vs_time(velocidades_por_tiempo):
     plt.clf()
 
     print(f"Saved plot to '{file_path}'")
-    
+
 
 def avg_v_vs_nh(data):
     ensure_output_directory_creation('avg_v_vs_nh')
-    
-    
+
 
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
     # Base directory where the simulation files are stored
@@ -281,8 +277,9 @@ def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
 
     return data
 
-def get_output_directory(timestamp: str= None):
-     # Base directory where the simulation files are stored
+
+def get_output_directory(timestamp: str = None):
+    # Base directory where the simulation files are stored
     base_dir = '../Simulation/outputs'
 
     # Determine the directory based on the timestamp or find the newest one
@@ -299,7 +296,7 @@ def get_output_directory(timestamp: str= None):
 
     if not target_dir:
         raise FileNotFoundError("No directories found with the given or latest timestamp.")
-    
+
     return target_dir
 
 
