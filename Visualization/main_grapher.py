@@ -3,8 +3,6 @@ import matplotlib.pyplot as plt
 import imageio
 import os
 import re
-import glob
-import numpy as np
 
 
 def main():
@@ -19,76 +17,236 @@ def main():
         # Create GIF
         generate_gif(data, 5, 10000)
         # Clean up frames
-        for file in os.listdir('frames'):
+        for file in os.listdir('./frames'):
             os.remove(f'frames/{file}')
         os.rmdir('frames')
 
-    ruta_archivos = get_output_directory()
-    archivos = glob.glob(os.path.join(ruta_archivos, '*.json'))
-
-    if config["frac_zombie"]:  #TODO hacer graficos zombies vs tiempo
-        zombies_por_tiempo = {}  # guarda la cantidad de zombies por tiempo
-        fracciones_por_tiempo = {}  # Guarda las fracciones de zombies en función del tiempo para cada simulación
-        fraccion_final_por_humanos = []  # Guarda la fracción final de zombies para cada número de humanos iniciales
-
-        # Iterar sobre cada archivo JSON
-        for archivo in archivos:
-            with open(archivo, 'r') as f:
-                data = json.load(f)
-                nh = data['params']['nh']  # Número de humanos iniciales
-                resultados = data['results']  # Datos de resultados por frame
-                tiempos = []
-                fracciones_zombies = []
-                n_zombies = []
-
-                # Iterar sobre cada frame de la simulación
-                for frame_no, frame in enumerate(resultados):
-                    num_humanos = sum(1 for entity in frame if entity["type"] == "human")
-                    num_zombies = sum(1 for entity in frame if entity["type"] == "zombie")
-                    fraccion_zombies = num_zombies / (num_humanos + 1)
-                    tiempos.append(frame_no * data['params']['dt'])
-                    n_zombies.append(num_zombies)
-                    fracciones_zombies.append(fraccion_zombies)
-
-                # Guardar los datos para graficar en función del tiempo
-                fracciones_por_tiempo[nh] = (tiempos, fracciones_zombies)
-                zombies_por_tiempo[nh] = (tiempos, n_zombies)
-
-                final_fraction = fraccion_zombies[-1] if isinstance(fraccion_zombies, list) else fraccion_zombies
-
-                # Guardar la fracción final de zombies al final de la simulación
-                fraccion_final_por_humanos.append((nh, final_fraction))
-
-        zombies_vs_time(zombies_por_tiempo)
-        frac_zombies_vs_time(fracciones_por_tiempo)
-        frac_zombies_vs_nh(fraccion_final_por_humanos)
+    if config["frac_zombie"]:
+        generate_frac_zombie_graph()
+        generate_mean_frac_zombie_graph()
 
     if config["avg_v"]:
-        velocidades_por_tiempo = {}  # Guarda las velocidades medias en función del tiempo para cada simulación
-        velocidad_media_por_humanos = []  # Guarda la velocidad media al final de la simulación para cada número de humanos iniciales
+        # generate_avg_speed_graph()
+        generate_avg_speed_graph_observable()
+        generate_human_and_zombie_avg_speed_observable()
 
-        # Iterar sobre cada archivo JSON
-        for archivo in archivos:
-            with open(archivo, 'r') as f:
-                data = json.load(f)
-                nh = data['params']['nh']  # Número de humanos iniciales
-                resultados = data['results']  # Datos de resultados por frame
-                tiempos = []
-                velocidades_medias = []
 
-                for frame_no, frame in enumerate(resultados):
-                    # Calcular la velocidad media para este frame
-                    velocidades = [entity['velocity'] for entity in frame if 'velocity' in entity]
-                    velocidad_media = np.mean(velocidades) if velocidades else 0
-                    tiempos.append(frame_no * data['params']['dt'])
-                    velocidades_medias.append(velocidad_media)
+def generate_avg_speed_graph():
+    # Load JSON data (for nh in 10, 20, ..., 100)
+    results_per_nh = {}
+    for nh in range(10, 101, 10):
+        results_per_nh[nh] = load_simulation_data(nh, 0)['results']
 
-                velocidades_por_tiempo[nh] = (tiempos, velocidades_medias)
+    avg_speed_per_nh = {}
+    dt_per_nh = {}
+    for nh, results in results_per_nh.items():
+        dt = results[0][0]['config']['dt']
+        dt_per_nh[nh] = dt
+        avg_speed_per_dt = {}
+        for i, frame in enumerate(results):
+            if i % 30 != 0:
+                continue
+            # Calculate mean speed for entities in the frame
+            speed_modulus_sum_in_dt = sum(character['v'] for character in frame)
+            speed_modulus_avg_in_dt = speed_modulus_sum_in_dt / len(frame) if frame else 0
+            avg_speed_per_dt[i * dt] = speed_modulus_avg_in_dt
+        avg_speed_per_nh[nh] = avg_speed_per_dt
 
-        avg_v_vs_time(velocidades_por_tiempo)
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    for nh, avg_speed in avg_speed_per_nh.items():
+        # Extract time and average speed values for plotting
+        time_axis = list(avg_speed.keys())
+        speed_values = list(avg_speed.values())
+        plt.plot(time_axis, speed_values, label=f"nh = {nh}")
 
-        #TODO este grafico
-        #avg_v_vs_nh(velocidad_media_por_humanos)
+    # Add labels and title
+    plt.xlabel("Time (seconds)")
+    plt.ylabel("Average Speed of Entities")
+    plt.title("Average Speed of Entities over Time for Different nh values")
+    plt.legend(title="Number of Humans (nh)")
+    plt.grid(True)
+    plt.show()
+
+
+def generate_avg_speed_graph_observable():
+    # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
+    mean_speed_per_nh_per_repetition: dict[float, list[float]] = {}
+    for nh in range(10, 101, 10):
+        mean_speed_per_nh_per_repetition[nh] = []
+        for rep in range(10):
+            print('Loading nh:', nh, 'rep:', rep)
+            simulation = load_simulation_data(nh, rep)
+            total_speed_in_simulation = 0
+            for frame in simulation['results']:
+                total_speed_in_simulation += sum(character['v'] for character in frame)
+            mean_speed_per_nh_per_repetition[nh].append(total_speed_in_simulation / (len(simulation['results']) * (nh+1)))
+
+    print(mean_speed_per_nh_per_repetition)
+    avg_speed_per_nh = {}
+    for nh, speed_list in mean_speed_per_nh_per_repetition.items():
+        # Compute the average speed across all repetitions for each nh
+        avg_speed_per_nh[nh] = sum(speed_list) / len(speed_list)
+
+    # Plotting the average speed for each nh value
+    plt.figure(figsize=(10, 6))
+    nh_values = list(avg_speed_per_nh.keys())
+    avg_speeds = list(avg_speed_per_nh.values())
+
+    plt.plot(nh_values, avg_speeds, marker='o', linestyle='-', color='b')
+
+    # Add labels and title
+    plt.xlabel("Number of Humans (nh)")
+    plt.ylabel("Average Speed of Entities")
+    plt.title("Average Speed of Entities for Different nh values")
+    plt.grid(True)
+    plt.show()
+
+
+def generate_human_and_zombie_avg_speed_observable():
+    # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
+    human_speed_per_nh_per_repetition: dict[float, list[float]] = {}
+    zombie_speed_per_nh_per_repetition: dict[float, list[float]] = {}
+
+    for nh in range(10, 101, 10):
+        human_speed_per_nh_per_repetition[nh] = []
+        zombie_speed_per_nh_per_repetition[nh] = []
+
+        for rep in range(10):
+            print('Loading nh:', nh, 'rep:', rep)
+            simulation = load_simulation_data(nh, rep)
+
+            total_human_speed = 0
+            total_zombie_speed = 0
+            human_count = 0
+            zombie_count = 0
+
+            for frame in simulation['results']:
+                for character in frame:
+                    if character["type"] == "human":
+                        total_human_speed += character['v']
+                        human_count += 1
+                    elif character["type"] == "zombie":
+                        total_zombie_speed += character['v']
+                        zombie_count += 1
+
+            # Calculate mean speeds for humans and zombies for this repetition
+            mean_human_speed = total_human_speed / human_count if human_count > 0 else 0
+            mean_zombie_speed = total_zombie_speed / zombie_count if zombie_count > 0 else 0
+
+            human_speed_per_nh_per_repetition[nh].append(mean_human_speed)
+            zombie_speed_per_nh_per_repetition[nh].append(mean_zombie_speed)
+
+    # Calculate average speeds across all repetitions for each nh
+    avg_human_speed_per_nh = {nh: sum(speeds) / len(speeds) for nh, speeds in human_speed_per_nh_per_repetition.items()}
+    avg_zombie_speed_per_nh = {nh: sum(speeds) / len(speeds) for nh, speeds in zombie_speed_per_nh_per_repetition.items()}
+
+    # Plotting the average speed for humans and zombies for each nh value
+    plt.figure(figsize=(10, 6))
+
+    nh_values = list(avg_human_speed_per_nh.keys())
+    avg_human_speeds = list(avg_human_speed_per_nh.values())
+    avg_zombie_speeds = list(avg_zombie_speed_per_nh.values())
+
+    plt.plot(nh_values, avg_human_speeds, marker='o', linestyle='-', color='b', label="Humans")
+    plt.plot(nh_values, avg_zombie_speeds, marker='o', linestyle='-', color='r', label="Zombies")
+
+    # Add labels and title
+    plt.xlabel("Number of Humans (nh)")
+    plt.ylabel("Average Speed of Entities")
+    plt.title("Average Speed of Humans and Zombies for Different nh values")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+def generate_frac_zombie_graph():
+    # Load JSON data (for nh in 10, 20, ..., 100)
+    results_per_nh = {}
+    for nh in range(10, 101, 10):
+        results_per_nh[nh] = load_simulation_data(nh, 0)['results']
+
+    zombie_frac_per_nh = {}
+    dt_per_nh = {}
+    for nh, results in results_per_nh.items():
+        zombie_frac = []
+        dt = results[0][0]['config']['dt']
+        dt_per_nh[nh] = dt
+        for i, frame in enumerate(results):
+            humans = sum(1 for entity in frame if entity["type"] == "human")
+            zombies = sum(1 for entity in frame if entity["type"] == "zombie")
+            if humans + zombies > 0:
+                zombie_frac.append(zombies / (humans + zombies))
+            else:
+                zombie_frac.append(0)
+        zombie_frac_per_nh[nh] = zombie_frac
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    for nh, zombie_frac in zombie_frac_per_nh.items():
+        # Generate time axis based on dt
+        time_axis = [i * dt_per_nh[nh] for i in range(len(zombie_frac))]
+        plt.plot(time_axis, zombie_frac, label=f"nh = {nh}")
+
+    # Add labels and title
+    plt.xlabel("Time (seconds)")
+    plt.ylabel("Fraction of Zombies")
+    plt.title("Fraction of Zombies over Time for Different nh values")
+    plt.legend(title="Number of Humans (nh)")
+    plt.grid(True)
+    plt.show()
+
+
+def generate_mean_frac_zombie_graph():
+    # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
+    results_per_nh_reps = {}
+    for nh in range(10, 101, 10):
+        results_per_nh_reps[nh] = [load_simulation_data(nh, rep)['results'] for rep in range(10)]
+
+    mean_zombie_frac_per_nh = {}
+    dt_per_nh = {}
+
+    for nh, repetitions in results_per_nh_reps.items():
+        dt = repetitions[0][0][0]['config']['dt']  # Assuming dt is the same across repetitions
+        dt_per_nh[nh] = dt
+        mean_frac_per_dt = {}
+
+        # Iterate over frames by index for averaging across repetitions
+        for i in range(len(repetitions[0])):  # Assuming all repetitions have the same number of frames
+            total_zombies = 0
+            total_humans = 0
+
+            for frame in repetitions:
+                entities = frame[i]
+                humans = sum(1 for entity in entities if entity["type"] == "human")
+                zombies = sum(1 for entity in entities if entity["type"] == "zombie")
+                total_humans += humans
+                total_zombies += zombies
+
+            if total_humans + total_zombies > 0:
+                mean_frac_for_dt = total_zombies / (total_humans + total_zombies)
+            else:
+                mean_frac_for_dt = 0
+
+            mean_frac_per_dt[i * dt] = mean_frac_for_dt  # Time = i * dt
+
+        mean_zombie_frac_per_nh[nh] = mean_frac_per_dt
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    for nh, zombie_frac in mean_zombie_frac_per_nh.items():
+        # Extract time and fraction values for plotting
+        time_axis = list(zombie_frac.keys())
+        fraction_values = list(zombie_frac.values())
+        plt.plot(time_axis, fraction_values, label=f"nh = {nh}")
+
+    # Add labels and title
+    plt.xlabel("Time (seconds)")
+    plt.ylabel("Mean Fraction of Zombies")
+    plt.title("Mean Fraction of Zombies over Time for Different nh values")
+    plt.legend(title="Number of Humans (nh)")
+    plt.grid(True)
+    plt.show()
 
 
 def generate_frames(data):
@@ -99,13 +257,15 @@ def generate_frames(data):
 
     # Delete old frames folder if exists and create a new one
     if os.path.exists('frames'):
+        for file in os.listdir('./frames'):
+            os.remove(f'frames/{file}')
         os.rmdir('frames')
     os.makedirs('frames')
 
     # Generate frames
     for i, frame in enumerate(results):
-        if i % 10 != 0:
-            continue
+        # if i % 10 != 0:
+        #     continue
         fig, ax = plt.subplots()
         ax.set_xlim(-arena_radius, arena_radius)
         ax.set_ylim(-arena_radius, arena_radius)
@@ -155,102 +315,9 @@ def generate_gif(data, skip_frames=1, max_frames=100000):
             print(f'Creating GIF: {counter / len(frames) * 100:.2f}% done. {counter / skip_frames}/{len(frames) / skip_frames} frames processed.')
 
 
-def zombies_vs_time(zombies_por_tiempo):
-    ensure_output_directory_creation('zombies_vs_time')
-    plt.figure(figsize=(10, 6))
-    for nh, (tiempos, zombies) in zombies_por_tiempo.items():
-        plt.plot(tiempos, zombies, label=f'Nh: {nh}')
-
-    plt.xlabel('Time (s)')
-    plt.ylabel('N_z')
-    plt.legend()
-    plt.grid(True)
-    # Define the output file path with dt in the filename
-    file_path = os.path.join('zombies_vs_time', f"zombies_vs_time.png")
-
-    # Save the plot to the file
-    plt.savefig(file_path)
-
-    # Optionally, you can clear the current figure to prevent overlay issues in future plots
-    plt.clf()
-
-    print(f"Saved plot to '{file_path}'")
-
-
-def frac_zombies_vs_time(fracciones_por_tiempo):
-    ensure_output_directory_creation('frac_zombies_vs_time')
-    plt.figure(figsize=(10, 6))
-    for nh, (tiempos, fracciones_zombies) in fracciones_por_tiempo.items():
-        plt.plot(tiempos, fracciones_zombies, label=f'Nh: {nh}')
-
-    plt.xlabel('Time (s)')
-    plt.ylabel('$\\langle \\phi_z(t) \\rangle$')
-    plt.legend()
-    plt.grid(True)
-    # Define the output file path with dt in the filename
-    file_path = os.path.join('frac_zombies_vs_time', f"frac_zombies_vs_time.png")
-
-    # Save the plot to the file
-    plt.savefig(file_path)
-
-    # Optionally, you can clear the current figure to prevent overlay issues in future plots
-    plt.clf()
-
-    print(f"Saved plot to '{file_path}'")
-
-
-def frac_zombies_vs_nh(fraccion_final_por_humanos):
-    ensure_output_directory_creation('frac_zombies_vs_nh')
-    # Graficar fracción final de zombies en función del número de humanos iniciales
-    humanos_iniciales, fracciones_finales = zip(*sorted(fraccion_final_por_humanos))
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(humanos_iniciales, fracciones_finales, marker='o')
-    plt.xlabel('N_h')
-    plt.ylabel('$\\langle \\phi_z ^final \\rangle$')
-    plt.grid(True)
-
-    # Define the output file path with dt in the filename
-    file_path = os.path.join('frac_zombies_vs_nh', f"frac_zombies_vs_nh.png")
-
-    # Save the plot to the file
-    plt.savefig(file_path)
-
-    # Optionally, you can clear the current figure to prevent overlay issues in future plots
-    plt.clf()
-
-    print(f"Saved plot to '{file_path}'")
-
-
-def avg_v_vs_time(velocidades_por_tiempo):
-    ensure_output_directory_creation('avg_v_vs_time')
-    plt.figure(figsize=(10, 6))
-
-    for nh, (tiempos, velocidades) in velocidades_por_tiempo.items():
-        plt.plot(tiempos, velocidades, label=f'N_h = {nh}')
-
-    plt.xlabel("Time (s)")
-    plt.ylabel("$\\langle \\bar{v}(m/s) \\rangle$")
-    plt.legend()
-    # Define the output file path with dt in the filename
-    file_path = os.path.join('avg_v_vs_time', f"avg_v_vs_time.png")
-
-    # Save the plot to the file
-    plt.savefig(file_path)
-
-    # Optionally, you can clear the current figure to prevent overlay issues in future plots
-    plt.clf()
-
-    print(f"Saved plot to '{file_path}'")
-
-
-def avg_v_vs_nh(data):
-    ensure_output_directory_creation('avg_v_vs_nh')
-
-
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../Simulation/outputs'
+    base_dir = '../outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:
@@ -280,7 +347,7 @@ def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
 
 def get_output_directory(timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../Simulation/outputs'
+    base_dir = '../outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:
