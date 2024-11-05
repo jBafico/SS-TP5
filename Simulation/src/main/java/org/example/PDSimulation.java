@@ -73,8 +73,16 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                 break;
             }
         }
+
+        double meanSpeed = resultsList.stream()
+                .mapToDouble(characters -> characters.stream()
+                        .mapToDouble(Character::getV)
+                        .average()
+                        .orElse(0))
+                .average()
+                .orElse(0);
         
-        return new SimulationResults(params, resultsList);
+        return new SimulationResults(params, resultsList, meanSpeed);
     }
 
     private void transformHumans(List<Character> characterList, Set<Character> contagionCharacters){

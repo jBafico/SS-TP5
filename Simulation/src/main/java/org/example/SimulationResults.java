@@ -4,5 +4,6 @@ import java.util.List;
 
 public record SimulationResults (
     SimulationParams params,
-    List<List<Character>> results
+    List<List<Character>> results,
+    double meanCharacterSpeed
 ) {}
