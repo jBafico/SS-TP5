@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import imageio
 import os
 import re
+import numpy as np
 
 
 def main():
@@ -22,11 +23,11 @@ def main():
         os.rmdir('frames')
 
     if config["frac_zombie"]:
-        generate_frac_zombie_graph()
+        # generate_frac_zombie_graph()
         generate_mean_frac_zombie_graph()
 
     if config["avg_v"]:
-        # generate_avg_speed_graph()
+        generate_avg_speed_graph()
         generate_avg_speed_graph_observable()
         generate_human_and_zombie_avg_speed_observable()
 
@@ -61,10 +62,9 @@ def generate_avg_speed_graph():
         plt.plot(time_axis, speed_values, label=f"nh = {nh}")
 
     # Add labels and title
-    plt.xlabel("Time (seconds)")
-    plt.ylabel("Average Speed of Entities")
-    plt.title("Average Speed of Entities over Time for Different nh values")
-    plt.legend(title="Number of Humans (nh)")
+    plt.xlabel("Tiempo (s)")
+    plt.ylabel("$\\bar{v}(m/s)$")
+    plt.legend()
     plt.grid(True)
     plt.show()
 
@@ -80,25 +80,27 @@ def generate_avg_speed_graph_observable():
             total_speed_in_simulation = 0
             for frame in simulation['results']:
                 total_speed_in_simulation += sum(character['v'] for character in frame)
-            mean_speed_per_nh_per_repetition[nh].append(total_speed_in_simulation / (len(simulation['results']) * (nh+1)))
+            mean_speed_per_nh_per_repetition[nh].append(total_speed_in_simulation / (len(simulation['results']) * (nh + 1)))
 
-    print(mean_speed_per_nh_per_repetition)
     avg_speed_per_nh = {}
-    for nh, speed_list in mean_speed_per_nh_per_repetition.items():
-        # Compute the average speed across all repetitions for each nh
-        avg_speed_per_nh[nh] = sum(speed_list) / len(speed_list)
+    std_dev_per_nh = {}
 
-    # Plotting the average speed for each nh value
+    for nh, speed_list in mean_speed_per_nh_per_repetition.items():
+        # Compute the average speed and standard deviation across all repetitions for each nh
+        avg_speed_per_nh[nh] = np.mean(speed_list)
+        std_dev_per_nh[nh] = np.std(speed_list)
+
+    # Plotting the average speed for each nh value with error bars
     plt.figure(figsize=(10, 6))
     nh_values = list(avg_speed_per_nh.keys())
     avg_speeds = list(avg_speed_per_nh.values())
+    std_devs = list(std_dev_per_nh.values())
 
-    plt.plot(nh_values, avg_speeds, marker='o', linestyle='-', color='b')
+    plt.errorbar(nh_values, avg_speeds, yerr=std_devs, marker='o', linestyle='-', color='b', capsize=5)
 
     # Add labels and title
-    plt.xlabel("Number of Humans (nh)")
-    plt.ylabel("Average Speed of Entities")
-    plt.title("Average Speed of Entities for Different nh values")
+    plt.xlabel("$N_h$")
+    plt.ylabel("$\\bar{v}(m/s)$")
     plt.grid(True)
     plt.show()
 
@@ -137,24 +139,29 @@ def generate_human_and_zombie_avg_speed_observable():
             human_speed_per_nh_per_repetition[nh].append(mean_human_speed)
             zombie_speed_per_nh_per_repetition[nh].append(mean_zombie_speed)
 
-    # Calculate average speeds across all repetitions for each nh
-    avg_human_speed_per_nh = {nh: sum(speeds) / len(speeds) for nh, speeds in human_speed_per_nh_per_repetition.items()}
-    avg_zombie_speed_per_nh = {nh: sum(speeds) / len(speeds) for nh, speeds in zombie_speed_per_nh_per_repetition.items()}
+    # Calculate average speeds and standard deviations across all repetitions for each nh
+    avg_human_speed_per_nh = {nh: np.mean(speeds) for nh, speeds in human_speed_per_nh_per_repetition.items()}
+    std_dev_human_per_nh = {nh: np.std(speeds) for nh, speeds in human_speed_per_nh_per_repetition.items()}
 
-    # Plotting the average speed for humans and zombies for each nh value
+    avg_zombie_speed_per_nh = {nh: np.mean(speeds) for nh, speeds in zombie_speed_per_nh_per_repetition.items()}
+    std_dev_zombie_per_nh = {nh: np.std(speeds) for nh, speeds in zombie_speed_per_nh_per_repetition.items()}
+
+    # Plotting the average speed for humans and zombies with error bars for each nh value
     plt.figure(figsize=(10, 6))
 
     nh_values = list(avg_human_speed_per_nh.keys())
     avg_human_speeds = list(avg_human_speed_per_nh.values())
-    avg_zombie_speeds = list(avg_zombie_speed_per_nh.values())
+    std_dev_humans = list(std_dev_human_per_nh.values())
 
-    plt.plot(nh_values, avg_human_speeds, marker='o', linestyle='-', color='b', label="Humans")
-    plt.plot(nh_values, avg_zombie_speeds, marker='o', linestyle='-', color='r', label="Zombies")
+    avg_zombie_speeds = list(avg_zombie_speed_per_nh.values())
+    std_dev_zombies = list(std_dev_zombie_per_nh.values())
+
+    plt.errorbar(nh_values, avg_human_speeds, yerr=std_dev_humans, marker='o', linestyle='-', color='b', capsize=5, label="Humans")
+    plt.errorbar(nh_values, avg_zombie_speeds, yerr=std_dev_zombies, marker='o', linestyle='-', color='r', capsize=5, label="Zombies")
 
     # Add labels and title
-    plt.xlabel("Number of Humans (nh)")
-    plt.ylabel("Average Speed of Entities")
-    plt.title("Average Speed of Humans and Zombies for Different nh values")
+    plt.xlabel("$N_h$")
+    plt.ylabel("$\\bar{v}(m/s)$")
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -186,65 +193,78 @@ def generate_frac_zombie_graph():
     for nh, zombie_frac in zombie_frac_per_nh.items():
         # Generate time axis based on dt
         time_axis = [i * dt_per_nh[nh] for i in range(len(zombie_frac))]
-        plt.plot(time_axis, zombie_frac, label=f"nh = {nh}")
+        plt.plot(time_axis, zombie_frac, label=f"$n_h$ = {nh}")
 
     # Add labels and title
-    plt.xlabel("Time (seconds)")
-    plt.ylabel("Fraction of Zombies")
-    plt.title("Fraction of Zombies over Time for Different nh values")
-    plt.legend(title="Number of Humans (nh)")
+    plt.xlabel("Tiempo (s)")
+    plt.ylabel("$\\langle \\phi_z(t) \\rangle$")
+    plt.legend()
     plt.grid(True)
     plt.show()
 
 
 def generate_mean_frac_zombie_graph():
-    # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
-    results_per_nh_reps = {}
-    for nh in range(10, 101, 10):
-        results_per_nh_reps[nh] = [load_simulation_data(nh, rep)['results'] for rep in range(10)]
-
+    # Initialize dictionaries to store results
     mean_zombie_frac_per_nh = {}
+    std_zombie_frac_per_nh = {}
     dt_per_nh = {}
 
-    for nh, repetitions in results_per_nh_reps.items():
-        dt = repetitions[0][0][0]['config']['dt']  # Assuming dt is the same across repetitions
-        dt_per_nh[nh] = dt
+    # Iterate over the number of humans (nh) values
+    for nh in range(10, 101, 10):
+        total_humans_per_frame = {}
+        total_zombies_per_frame = {}
+        dt = None
+
+        # Load each repetition and accumulate totals for each frame
+        for rep in range(10):
+            print(f'Loading nh: {nh}, rep: {rep}')
+            simulation = load_simulation_data(nh, rep)
+            if dt is None:
+                dt = simulation['results'][0][0]['config']['dt']  # Get dt from the first repetition
+
+            # Iterate over frames but only take every 30th frame
+            for i, frame in enumerate(simulation['results']):
+                if i % 1000 == 0:  # Process every 30th frame
+                    if i not in total_humans_per_frame:
+                        total_humans_per_frame[i] = [0, 0]  # [total humans, total zombies]
+
+                    for entity in frame:
+                        if entity["type"] == "human":
+                            total_humans_per_frame[i][0] += 1
+                        elif entity["type"] == "zombie":
+                            total_humans_per_frame[i][1] += 1
+
+        # Now compute mean fractions and standard deviations
         mean_frac_per_dt = {}
+        std_frac_per_dt = {}
 
-        # Iterate over frames by index for averaging across repetitions
-        for i in range(len(repetitions[0])):  # Assuming all repetitions have the same number of frames
-            total_zombies = 0
-            total_humans = 0
-
-            for frame in repetitions:
-                entities = frame[i]
-                humans = sum(1 for entity in entities if entity["type"] == "human")
-                zombies = sum(1 for entity in entities if entity["type"] == "zombie")
-                total_humans += humans
-                total_zombies += zombies
-
+        for i, totals in total_humans_per_frame.items():
+            total_humans, total_zombies = totals
             if total_humans + total_zombies > 0:
                 mean_frac_for_dt = total_zombies / (total_humans + total_zombies)
+                mean_frac_per_dt[i * dt] = mean_frac_for_dt
+                std_frac_per_dt[i * dt] = np.sqrt((total_zombies * (1 - mean_frac_for_dt)) / (total_humans + total_zombies))  # Standard deviation formula
             else:
-                mean_frac_for_dt = 0
-
-            mean_frac_per_dt[i * dt] = mean_frac_for_dt  # Time = i * dt
+                mean_frac_per_dt[i * dt] = 0
+                std_frac_per_dt[i * dt] = 0  # No variance if there are no entities
 
         mean_zombie_frac_per_nh[nh] = mean_frac_per_dt
+        std_zombie_frac_per_nh[nh] = std_frac_per_dt
 
     # Plot the graph with `dt` on the x-axis
     plt.figure(figsize=(10, 6))
-    for nh, zombie_frac in mean_zombie_frac_per_nh.items():
+    for nh in mean_zombie_frac_per_nh.keys():
         # Extract time and fraction values for plotting
-        time_axis = list(zombie_frac.keys())
-        fraction_values = list(zombie_frac.values())
-        plt.plot(time_axis, fraction_values, label=f"nh = {nh}")
+        time_axis = list(mean_zombie_frac_per_nh[nh].keys())
+        fraction_values = list(mean_zombie_frac_per_nh[nh].values())
+        error_values = list(std_zombie_frac_per_nh[nh].values())
+
+        plt.errorbar(time_axis, fraction_values, yerr=error_values, label=f"nh = {nh}", fmt='o')
 
     # Add labels and title
-    plt.xlabel("Time (seconds)")
-    plt.ylabel("Mean Fraction of Zombies")
-    plt.title("Mean Fraction of Zombies over Time for Different nh values")
-    plt.legend(title="Number of Humans (nh)")
+    plt.xlabel("Tiempo (s)")
+    plt.ylabel("$\\langle \\phi_z(t) \\rangle$")
+    plt.legend()
     plt.grid(True)
     plt.show()
 
