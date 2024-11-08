@@ -12,7 +12,7 @@ def main():
 
     if config["animations"]:
         # Load JSON data
-        data = load_simulation_data(10, 0)
+        data = load_simulation_data(100, 0)
         # Generate frames
         generate_frames(data)
         # Create GIF
@@ -366,7 +366,7 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     plt.figure(figsize=(10, 6))
     plt.errorbar(nh_values, means, yerr=std_devs, fmt='-o', capsize=5, color='b', ecolor='blue')
     plt.xlabel("$N_h$")
-    plt.ylabel("$\\langle \\phi_z(t) \\rangle$")
+    plt.ylabel("$\\langle \\phi_z(N_h) \\rangle$")
     plt.grid()
     plt.show()
 
