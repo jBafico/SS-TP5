@@ -125,7 +125,7 @@ public abstract class Character { //This class is the abstract class of the Enti
         return getNextDesiredTheta(characterList, wall) + thetaNoise;
     }
 
-    private Coordinates getNextCoordinates(){
+    private Coordinates getNextCoordinates() {
         double nextX = getX() + getVx() * config.dt();
         double nextY = getY() + getVy() * config.dt();
         return new Coordinates(nextX, nextY);
@@ -150,17 +150,17 @@ public abstract class Character { //This class is the abstract class of the Enti
     }
 
 
-    protected List<Character> findNNearestZombies(List<Character> characterList, int n, double maxFactor) {
-        return findNNearestCharactersHelper(characterList, n, "human", maxFactor);
+    protected List<Character> findNNearestZombies(List<Character> characterList, int n) {
+        return findNNearestCharactersHelper(characterList, n, "human");
     }
 
-    protected List<Character> findNNearestHumans(List<Character> characterList, int n, double maxFactor) {
-        return findNNearestCharactersHelper(characterList, n, "zombie", maxFactor);
+    protected List<Character> findNNearestHumans(List<Character> characterList, int n) {
+        return findNNearestCharactersHelper(characterList, n, "zombie");
     }
 
 
     // Helper function
-    private List<Character> findNNearestCharactersHelper(List<Character> characterList, int n, String typeToAvoid, double maxFactor) {
+    private List<Character> findNNearestCharactersHelper(List<Character> characterList, int n, String typeToAvoid) {
         List<Character> filteredCharacters = characterList.stream()
             // Filter out characters of the type specified in `typeToAvoid` and exclude the calling character `this`
             .filter(character -> {
@@ -168,26 +168,17 @@ public abstract class Character { //This class is the abstract class of the Enti
                     return !(character instanceof Human) && character != this;
                 } else if (typeToAvoid.equals("zombie")) {
                     return !(character instanceof Zombie) && character != this;
+                } else {
+                    throw new IllegalArgumentException("Invalid typeToAvoid: " + typeToAvoid);
                 }
-                return character != this; // Default case if typeToAvoid is not specified correctly
             })
             // Sort by distance to the calling character
             .sorted(Comparator.comparingDouble(this::distanceToCollision))
             .toList();
 
-        if (filteredCharacters.isEmpty()){
-            return filteredCharacters;
-        }
-
-        // Get the distance to the nearest character if any are found
-        double nearestDistance = this.distanceToCollision(filteredCharacters.getFirst());
-
-        // Now filter again based on maxFactor condition
-        // This is to ignore the characters that appear in the list but are far from the calling character when compared to the nearest one
-        return filteredCharacters.stream()
-            .filter(character -> this.distanceToCollision(character) <= maxFactor * nearestDistance)
-            .limit(n) // Limit to the `n` closest characters after filtering
-            .collect(Collectors.toList());
+            return filteredCharacters.stream()
+                .limit(n) // Limit to the `n` closest characters after filtering
+                .collect(Collectors.toList());
     }
 
 }

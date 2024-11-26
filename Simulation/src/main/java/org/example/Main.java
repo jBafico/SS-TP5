@@ -43,7 +43,7 @@ public class Main {
                     // Run the simulation
                     System.out.printf("Running simulation with nh: %d, repetition_no: %d\n", nh, repetition_no);
                     double dt = params.rMin() / (2 * params.vhMax());
-                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(), params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.maxLengthFactor(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha());
+                    SimulationParams simulationParams = new SimulationParams(nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(), new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(), params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha());
                     PDSimulation simulation = new PDSimulation(simulationParams);
                     SimulationResults results = simulation.run();
                     System.out.println("Simulation finished!");

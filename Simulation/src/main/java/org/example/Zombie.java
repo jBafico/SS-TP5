@@ -42,7 +42,7 @@ public class Zombie extends Character{
         }
 
         // Find the nearest human and follow him
-        Character nearestHuman = this.findNNearestHumans(characterList, 1, getConfig().maxLengthFactor()).getFirst();
+        Character nearestHuman = this.findNNearestHumans(characterList, 1).getFirst();
 
         // Calculate the difference in x and y coordinates
         double deltaX = nearestHuman.getX() - this.getX();

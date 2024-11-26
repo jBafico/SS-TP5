@@ -19,11 +19,9 @@ public class Human extends Character {
 
     @Override
 protected double getNextDesiredTheta(List<Character> characterList, Wall wall) {
-    double maxFactor = getConfig().maxLengthFactor();
-
     // 1. Identify nearest characters and wall collision point
-    List<Character> nearestZombies = this.findNNearestZombies(characterList, getConfig().nearestZombiesToConsider(), maxFactor);
-    List<Character> nearestHumans = this.findNNearestHumans(characterList, getConfig().nearestHumansToConsider(), maxFactor);
+    List<Character> nearestZombies = this.findNNearestZombies(characterList, getConfig().nearestZombiesToConsider());
+    List<Character> nearestHumans = this.findNNearestHumans(characterList, getConfig().nearestHumansToConsider());
     Coordinates nearestPointToWall = wall.nearestPointToWall(this.getCoordinates());
 
     // 2. Set weighted sums for zombies, humans, and wall points
