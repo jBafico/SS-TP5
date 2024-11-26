@@ -11,12 +11,13 @@ def main():
         config = json.load(f)
 
     if config["animations"]:
+        skip_frames = 1
         # Load JSON data
         data = load_simulation_data(100, 0)
         # Generate frames
-        generate_frames(data)
+        generate_frames(data, skip_frames)
         # Create GIF
-        generate_gif(data, 5, 10000)
+        generate_gif(data, skip_frames, 5000)
         # Clean up frames
         for file in os.listdir('./frames'):
             os.remove(f'frames/{file}')
@@ -371,8 +372,7 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     plt.show()
 
 
-
-def generate_frames(data):
+def generate_frames(data, skip_frames):
     arena_radius = data["params"]["arenaRadius"]
     results = data["results"]
 
@@ -387,8 +387,8 @@ def generate_frames(data):
 
     # Generate frames
     for i, frame in enumerate(results):
-        # if i % 10 != 0:
-        #     continue
+        if i % skip_frames != 0:
+            continue
         fig, ax = plt.subplots()
         ax.set_xlim(-arena_radius, arena_radius)
         ax.set_ylim(-arena_radius, arena_radius)
@@ -413,7 +413,7 @@ def generate_frames(data):
         plt.close(fig)
 
 
-def generate_gif(data, skip_frames=1, max_frames=100000):
+def generate_gif(data, skip_frames=30, max_frames=5000):
     # Regular expression to extract frame numbers
     frame_pattern = re.compile(r'frame_(\d+)\.png')
 
