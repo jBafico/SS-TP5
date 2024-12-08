@@ -16,11 +16,12 @@ public abstract class Character { //This class is the abstract class of the Enti
     private final double v; // Current velocity module
     private final double theta; // Current velocity direction in radians
     private final double r; // Current radius
-    private final double remainingContagion; // The amount of time the character has to wait to move again
+    private double remainingContagion; // The amount of time the character has to wait to move again
+    private boolean inContagion; // Refers to if the character is in the process of contagion
     private final String type; // Type of character
 
     // Without contagion time
-    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, String type){
+    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, String type, boolean inContagion){
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
@@ -29,10 +30,11 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.theta = 0;
         this.remainingContagion = 0;
         this.type = type;
+        this.inContagion = inContagion;
     }
 
     // With contagion time
-    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, double remainingContagion, String type){
+    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, double remainingContagion, String type, boolean inContagion){
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
@@ -41,9 +43,10 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.theta = 0;
         this.remainingContagion = remainingContagion;
         this.type = type;
+        this.inContagion = inContagion;
     }
 
-    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, String type, double remainingContagion) {
+    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, String type, double remainingContagion, boolean inContagion) {
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
@@ -52,6 +55,7 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.theta = theta;
         this.remainingContagion = remainingContagion;
         this.type = type;
+        this.inContagion = inContagion;
     }
 
     public double getX(){
@@ -131,12 +135,12 @@ public abstract class Character { //This class is the abstract class of the Enti
         return new Coordinates(nextX, nextY);
     }
 
-    protected abstract Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion);
+    protected abstract Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion, boolean inContagion);
 
     public Character getNext(List<Character> characterList, Wall wall) {
 
-        if (remainingContagion > 0) {
-            return createNextInstance(coordinates, 0, 0, config.rMin(), remainingContagion - config.dt());
+        if (remainingContagion > 0 && inContagion) {
+            return createNextInstance(coordinates, 0, 0, config.rMin(), remainingContagion - config.dt(), inContagion);
         }
 
         Coordinates nextCoordinates = getNextCoordinates(); // Calculate the next position according to current speed and direction
@@ -146,7 +150,17 @@ public abstract class Character { //This class is the abstract class of the Enti
         double nextV = getNextV(isColliding); // Calculate next speed
         double nextR = getNextR(isColliding); // Calculate next r
 
-        return createNextInstance(nextCoordinates, nextV, nextTheta, nextR, 0);
+        return createNextInstance(nextCoordinates, nextV, nextTheta, nextR, 0, inContagion);
+    }
+
+    public void startContagion(double contagionTime){
+        this.remainingContagion=contagionTime;
+        this.inContagion=true;
+    }
+
+    public void stopContagion(){
+        this.remainingContagion=0;
+        this.inContagion=false;
     }
 
 

@@ -58,6 +58,17 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                     continue;
                 }
 
+                // If the human didn't start the contagion process, start it
+                if(!human.isInContagion()){
+                    human.startContagion(params.contagionTime());
+                    collidingZombie.startContagion(params.contagionTime());
+                    continue;
+                }
+
+                if(human.getRemainingContagion()<0){
+                    human.stopContagion();
+                }
+
                 contagionCharacters.add(human);
                 contagionCharacters.add(collidingZombie);
             }
@@ -88,14 +99,14 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
     private void transformHumans(List<Character> characterList, Set<Character> contagionCharacters){
         // This method transforms a Human to a Zombie
         for (Character c : contagionCharacters) {
-            characterList.remove(c);
-            characterList.add(new Zombie(c.getCoordinates(), params.constants(), zombieConfig, params.contagionTime()));
+                characterList.remove(c);
+                characterList.add(new Zombie(c.getCoordinates(), params.constants(), zombieConfig, 0, false));
         }
     }
 
     private List<Character> generateRandomCharacters(Wall wall) {
         List<Character> generatedCharacters = new ArrayList<>();
-        Character newCharacter = new Zombie(new Coordinates(0, 0), params.constants(), zombieConfig, 0);
+        Character newCharacter = new Zombie(new Coordinates(0, 0), params.constants(), zombieConfig, 0, false);
         generatedCharacters.add(newCharacter);
 
         // Generate nh Humans
@@ -103,7 +114,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         while (generatedCharacters.size() <= params.nh()) {
             // Generate new characters with random coordinates
             Coordinates coordinates = wall.generateRandomCoordinatesInWall(params.nonSpawnR());
-            newCharacter = new Human(coordinates, params.constants(), humanConfig);
+            newCharacter = new Human(coordinates, params.constants(), humanConfig, false);
 
             // Check if new character collides with any other particle in the list
             boolean collides = false;

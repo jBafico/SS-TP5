@@ -11,9 +11,9 @@ def main():
         config = json.load(f)
 
     if config["animations"]:
-        skip_frames = 1
+        skip_frames = 10
         # Load JSON data
-        data = load_simulation_data(100, 0)
+        data = load_simulation_data(10, 1)
         # Generate frames
         generate_frames(data, skip_frames)
         # Create GIF
@@ -440,7 +440,7 @@ def generate_gif(data, skip_frames=30, max_frames=5000):
 
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../outputs'
+    base_dir = '../Simulation/outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:
@@ -470,7 +470,7 @@ def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
 
 def get_output_directory(timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../outputs'
+    base_dir = '../Simulation/outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:

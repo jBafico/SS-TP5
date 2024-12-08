@@ -1,6 +1,6 @@
 {
   "minNh": 10,
-  "maxNh": 100,
+  "maxNh": 20,
   "nhIncrement": 5,
   "repetitions": 10,
   "maxTime": 2000,
@@ -20,7 +20,6 @@
   "nearestHumansImportance": 4,
   "nearestZombiesImportance": 8,
   "wallImportance": 8,
-  "maxLengthFactor": 4,
   "humanImportanceDecayAlpha": 1,
   "zombieImportanceDecayAlpha": 4,
   "wallImportanceDecayAlpha": 1

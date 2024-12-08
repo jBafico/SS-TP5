@@ -3,17 +3,17 @@ package org.example;
 import java.util.List;
 
 public class Human extends Character {
-    public Human(Coordinates coordinates, Constants constants, CharacterConfig config) {
-        super(coordinates, constants, config, "human");
+    public Human(Coordinates coordinates, Constants constants, CharacterConfig config, boolean inContagion) {
+        super(coordinates, constants, config, "human", inContagion);
     }
 
-    private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion) {
-        super(coordinates, constants, config, v, theta, r, "human", remainingContagion);
+    private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion, boolean inContagion) {
+        super(coordinates, constants, config, v, theta, r, "human", remainingContagion, inContagion);
     }
 
     @Override
-    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion) {
-        return new Human(coordinates, this.getConstants(), this.getConfig(), v, theta, r, remainingContagion);
+    protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion, boolean inContagion) {
+        return new Human(coordinates, this.getConstants(), this.getConfig(), v, theta, r, remainingContagion, inContagion);
     }
 
 
