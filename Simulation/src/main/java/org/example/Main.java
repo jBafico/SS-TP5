@@ -37,20 +37,23 @@ public class Main {
             for (int repetition_no = 0; repetition_no < params.repetitions(); repetition_no++) {
                 // Iterate through the starting number of humans
                 for (int nh = params.minNh(); nh <= params.maxNh(); nh += params.nhIncrement()) {
-                    // Run the simulation
-                    System.out.printf("Running simulation with nh: %d, repetition_no: %d\n", nh, repetition_no);
-                    double dt = params.rMin() / (2 * params.vhMax());
-                    SimulationParams simulationParams = new SimulationParams(
-                            nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(),
-                            new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(),
-                            params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha(),
-                            params.maxShootRange(), params.shootProbability(), params.shootInterval(), params.minShootProportion()
-                    );
-                    PDSimulation simulation = new PDSimulation(simulationParams);
-                    SimulationResults results = simulation.run();
+                    // Iterate through the different shoot probabilities
+                    for (double shootProbability = params.minShootProbability(); shootProbability <= params.maxShootProbability(); shootProbability += params.shootProbabilityIncrement()){
+                        // Run the simulation
+                        System.out.printf("Running simulation with nh: %d, repetition_no: %d, shoot probability: %s\n", nh, repetition_no, shootProbability);
+                        double dt = params.rMin() / (2 * params.vhMax());
+                        SimulationParams simulationParams = new SimulationParams(
+                                nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(),
+                                new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(),
+                                params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha(),
+                                params.maxShootRange(), shootProbability, params.shootInterval(), params.minShootProportion()
+                        );
+                        PDSimulation simulation = new PDSimulation(simulationParams);
+                        SimulationResults results = simulation.run();
 
-                    // Write the results to a file
-                    writeOutput(results, outputDirectoryPath.toString());
+                        // Write the results to a file
+                        writeOutput(results, outputDirectoryPath.toString());
+                    }
                 }
             }
         } catch (Exception e) {
@@ -92,9 +95,11 @@ public class Main {
             // Create an ObjectMapper instance
             ObjectMapper objectMapper = new ObjectMapper();
 
+            String formattedShootProbability = String.format("%.1f", results.params().shootProbability());
+
             // Define the output file with a unique name for each simulation result
-            String filename = String.format("simulation_nh_%d_repetition_%d.json",
-                    results.params().nh(), results.params().repetition_no());
+            String filename = String.format("simulation_nh_%d_repetition_%d_shoot_probability_%s.json",
+                    results.params().nh(), results.params().repetition_no(), formattedShootProbability);
             File outputFile = new File(outputDirectoryPath, filename);
 
             // Write the SimulationResults to the file in JSON format

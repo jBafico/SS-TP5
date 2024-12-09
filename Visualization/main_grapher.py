@@ -9,6 +9,7 @@ REPETITIONS = 5
 SKIP = 30
 
 
+
 def main():
     with open("./config.json", "r") as f:
         config = json.load(f)
@@ -435,7 +436,7 @@ def generate_gif(data, skip_frames=30, max_frames=5000):
             print(f'Creating GIF: {counter / len(frames) * 100:.2f}% done. {counter / skip_frames}/{len(frames) / skip_frames} frames processed.')
 
 
-def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
+def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None, shoot_probability: float | None = None):
     # Base directory where the simulation files are stored
     base_dir = '../outputs'
 
@@ -455,7 +456,11 @@ def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
         raise FileNotFoundError("No directories found with the given or latest timestamp.")
 
     # Construct the filename and path
-    file_name = f"simulation_nh_{nh}_repetition_{repetition_no}.json"
+    if shoot_probability:
+        file_name = f"simulation_nh_{nh}_repetition_{repetition_no}_shoot_probability_{shoot_probability}.json"
+    else:
+        file_name = f"simulation_nh_{nh}_repetition_{repetition_no}.json"
+
     file_path = os.path.join(target_dir, file_name)
 
     # Open and load the file

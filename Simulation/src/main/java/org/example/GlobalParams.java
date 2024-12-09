@@ -33,7 +33,9 @@ public record GlobalParams(
 
         // Params for shooting
         double maxShootRange, // Maximum range of a human's shooting ability
-        double shootProbability, // Probability of a zombie being killed
+        double minShootProbability, // Minimum probability of a zombie being killed
+        double maxShootProbability, // Maximum probability of a zombie being killed
+        double shootProbabilityIncrement, // Increment of the probability of a zombie being killed
         int shootInterval, // Time interval between shots
         double minShootProportion // Minimum proportion of zombies to shoot
 ) { }

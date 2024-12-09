@@ -24,7 +24,9 @@
   "zombieImportanceDecayAlpha": 4,
   "wallImportanceDecayAlpha": 1,
   "maxShootRange": 1,
-  "shootProbability": 0.3,
+  "minShootProbability": 0.1,
+  "maxShootProbability": 0.9,
+  "shootProbabilityIncrement": 0.1,
   "shootInterval": 50,
   "minShootProportion": 0.2
 }
