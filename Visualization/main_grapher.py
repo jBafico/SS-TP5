@@ -323,7 +323,7 @@ def generate_mean_frac_zombie_graph():
     plt.show()
 
 
-def generate_mean_last_frac_zombie_plot():
+def generate_mean_frac_zombie_in_all_frames_plot():
     """This has the value of nh on the X axis and the mean last fraction of zombies on the Y axis for all repetitions of that nh."""
     # Initialize variables
     zombie_fraction_by_nh = {}

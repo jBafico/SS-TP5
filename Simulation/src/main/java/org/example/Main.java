@@ -25,7 +25,7 @@ public class Main {
         GlobalParams params = null;
         try {
             // Load the JSON file from resources
-            InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("./GlobalParams.json");
+            InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("./globalParams.json");
 
             // Create an ObjectMapper instance
             ObjectMapper objectMapper = new ObjectMapper();
