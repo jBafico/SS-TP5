@@ -5,8 +5,8 @@ import os
 import re
 import numpy as np
 
-REPETITIONS = 5
-SKIP = 30
+REPETITIONS = 50
+SKIP = 10
 
 
 def main():
@@ -45,7 +45,8 @@ def __get_dt(simulation):
 def generate_avg_speed_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
-    for nh in range(10, 101, SKIP):
+    output_directory='avg_v_vs_time'
+    for nh in range(30, 51, SKIP):
         simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     avg_speed_per_nh = {}
@@ -77,13 +78,21 @@ def generate_avg_speed_graph():
     plt.ylabel("$\\bar{v}(m/s)$")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"avg_v_vs_time.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
 
 
 def generate_avg_speed_graph_observable():
     # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
     mean_speed_per_nh_per_repetition: dict[float, list[float]] = {}
-    for nh in range(10, 101, SKIP):
+    output_directory='avg_v_vs_time'
+    for nh in range(30, 51, SKIP):
         mean_speed_per_nh_per_repetition[nh] = []
         for rep in range(REPETITIONS):
             print('Loading nh:', nh, 'rep:', rep)
@@ -113,15 +122,23 @@ def generate_avg_speed_graph_observable():
     plt.xlabel("$N_h$")
     plt.ylabel("$\\bar{v}(m/s)$")
     plt.grid(True)
-    plt.show()
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"avg_v_vs_nh_observable.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
 
 
 def generate_human_and_zombie_avg_speed_observable():
     # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
     human_speed_per_nh_per_repetition: dict[float, list[float]] = {}
     zombie_speed_per_nh_per_repetition: dict[float, list[float]] = {}
+    output_directory='avg_v_vs_time'
 
-    for nh in range(10, 101, SKIP):
+    for nh in range(30, 51, SKIP):
         human_speed_per_nh_per_repetition[nh] = []
         zombie_speed_per_nh_per_repetition[nh] = []
 
@@ -175,13 +192,21 @@ def generate_human_and_zombie_avg_speed_observable():
     plt.ylabel("$\\bar{v}(m/s)$")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"avg_v_vs_nh_observable.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
 
 
 def generate_frac_zombie_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
-    for nh in range(10, 101, SKIP):
+    output_directory='frac_zombies_vs_time'
+    for nh in range(30, 51, SKIP):
         simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     zombie_frac_per_nh = {}
@@ -212,7 +237,14 @@ def generate_frac_zombie_graph():
     plt.ylabel("$\\langle \\phi_z(t) \\rangle$")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_vs_time.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
 
 
 def generate_human_and_zombie_avg_speed_for_single_simulation_graph(nh: int, repetition_no: int):
@@ -220,6 +252,7 @@ def generate_human_and_zombie_avg_speed_for_single_simulation_graph(nh: int, rep
     # Load JSON data
     simulation = load_simulation_data(nh, repetition_no)
     dt = __get_dt(simulation)
+    output_directory='avg_v_vs_time'
 
     # Initialize dictionaries to store results
     human_speed_per_dt = {}
@@ -257,7 +290,14 @@ def generate_human_and_zombie_avg_speed_for_single_simulation_graph(nh: int, rep
     plt.ylabel("$\\bar{v}(m/s)$")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"avg_v_vs_time_nh_{nh}_repetition_{repetition_no}.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
 
 
 def generate_mean_frac_zombie_graph():
@@ -265,9 +305,10 @@ def generate_mean_frac_zombie_graph():
     mean_zombie_frac_per_nh = {}
     std_zombie_frac_per_nh = {}
     dt_per_nh = {}
+    output_directory='frac_zombies_vs_nh'
 
     # Iterate over the number of humans (nh) values
-    for nh in range(10, 101, SKIP):
+    for nh in range(30, 51, SKIP):
         total_humans_per_frame = {}
         total_zombies_per_frame = {}
         dt = None
@@ -323,7 +364,14 @@ def generate_mean_frac_zombie_graph():
     plt.ylabel("$\\langle \\phi_z(t) \\rangle$")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_vs_time.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
 
 
 def generate_mean_frac_zombie_in_all_frames_plot():
@@ -331,9 +379,9 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     # Initialize variables
     zombie_fraction_by_nh = {}
     std_dev_by_nh = {}
-
+    output_directory='frac_zombies_vs_nh'
     # Iterate over the number of humans (nh) values
-    for nh in range(10, 101, SKIP):
+    for nh in range(30, 51, SKIP):
         last_zombie_fraction_in_simulation_repetition = []
 
         for rep in range(REPETITIONS):
@@ -366,7 +414,15 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     plt.xlabel("$N_h$")
     plt.ylabel("$\\langle \\phi_z(N_h) \\rangle$ (last frame)")
     plt.grid()
-    plt.show()
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_vs_nh.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
 
 
 def generate_frames(data, skip_frames):
