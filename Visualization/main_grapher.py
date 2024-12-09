@@ -398,7 +398,7 @@ def generate_frames(data, skip_frames):
 
         # Plot humans and zombies
         for entity in frame:
-            x, y = entity['coordinates']['x'], entity['coordinates']['y']
+            x, y = entity['x'], entity['y']
             if entity['type'] == 'human':
                 plt.plot(x, y, 'bo')  # Blue circles for humans
             elif entity['type'] == 'zombie':

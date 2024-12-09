@@ -19,9 +19,6 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-
-        System.out.println("Starting simulation!");
-
         GlobalParams params = null;
         try {
             // Load the JSON file from resources
@@ -46,15 +43,14 @@ public class Main {
                     SimulationParams simulationParams = new SimulationParams(
                             nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(),
                             new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(),
-                            params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha()
+                            params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha(),
+                            params.maxShootRange(), params.shootProbability(), params.shootInterval(), params.minShootProportion()
                     );
                     PDSimulation simulation = new PDSimulation(simulationParams);
                     SimulationResults results = simulation.run();
-                    System.out.println("Simulation finished!");
 
-                    System.out.println("Writing output...");
+                    // Write the results to a file
                     writeOutput(results, outputDirectoryPath.toString());
-                    System.out.println("Output written!");
                 }
             }
         } catch (Exception e) {

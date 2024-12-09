@@ -12,6 +12,9 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
     private final SimulationParams params;
     private final CharacterConfig zombieConfig;
     private final CharacterConfig humanConfig;
+    private long iterationNo = 0;
+    private boolean minShootProportionReached = false;
+    private String simulationStatusMsg = "DRAW";
 
     public PDSimulation(SimulationParams params){
         this.params = params;
@@ -31,6 +34,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
 
         // Iterate until we reach maxTime or all characters are now zombies
         for (double dt = 0; dt < params.maxTime(); dt+=params.dt()) {
+            iterationNo++;
             List<Character> currentState = resultsList.getLast();
 
             // Create the newState
@@ -75,12 +79,49 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
 
             transformHumans(newState, contagionCharacters);
 
+            // Check if we have met the minimum shoot proportion yet
+            if (!minShootProportionReached) {
+                int zombieAmount = (int) newState.stream().filter(c -> c instanceof Zombie).count();
+                int humanAmount = (int) newState.stream().filter(c -> c instanceof Human).count();
+                minShootProportionReached = zombieAmount >= Math.ceil(params.minShootProportion() * humanAmount);
+            }
+            // Do the shoot logic if we are on the right time, and we have the sufficient amount of zombies
+            else if (iterationNo % params.shootInterval() == 0) {
+                List<Character> shotCharacters = new ArrayList<>();
+                for (Character character : newState) {
+                    if (character instanceof Zombie){
+                        continue;
+                    }
+
+                    // Given we are a human, find the nearest zombie
+                    Human human = (Human) character;
+                    Zombie nearestZombie = (Zombie) human.findNNearestZombies(newState, 1).getFirst();
+
+                    // If the zombie is in the shooting range, shoot it with the given probability
+                    if (human.distanceToCollision(nearestZombie) <= params.maxShootRange()) {
+                        if (Math.random() < params.shootProbability()) {
+                            shotCharacters.add(nearestZombie);
+                        }
+                    }
+                }
+
+                // Remove the shot zombies from the newState
+                newState.removeAll(shotCharacters);
+            }
+
+
             // Add the updated state to the results list
             resultsList.add(newState);
 
             // If every character is a zombie, end the simulation
             if (newState.stream().allMatch(c -> c instanceof Zombie)) {
-                System.out.println("Finishing the simulation because all characters are now zombies");
+                simulationStatusMsg = "ZOMBIES WON";
+                break;
+            }
+
+            // If every character is a human, end the simulation
+            if (newState.stream().allMatch(c -> c instanceof Human)) {
+                simulationStatusMsg = "HUMANS WON";
                 break;
             }
         }
@@ -92,7 +133,8 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                         .orElse(0))
                 .average()
                 .orElse(0);
-        
+
+        System.out.println("Simulation finish status: " + simulationStatusMsg);
         return new SimulationResults(params, resultsList, meanSpeed);
     }
 
@@ -142,7 +184,6 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                 break;
             }
         }
-        System.out.println("Finished generation");
         return generatedCharacters;
     }
 }

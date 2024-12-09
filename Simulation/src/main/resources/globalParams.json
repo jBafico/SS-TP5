@@ -22,5 +22,9 @@
   "wallImportance": 8,
   "humanImportanceDecayAlpha": 1,
   "zombieImportanceDecayAlpha": 4,
-  "wallImportanceDecayAlpha": 1
+  "wallImportanceDecayAlpha": 1,
+  "maxShootRange": 1,
+  "shootProbability": 0.3,
+  "shootInterval": 50,
+  "minShootProportion": 0.2
 }
