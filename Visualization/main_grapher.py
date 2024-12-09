@@ -461,6 +461,8 @@ def generate_frames(data, skip_frames):
                 plt.plot(x, y, 'ro')  # Red circles for zombies
 
         # Save frame
+        plt.xlabel("x (m)")
+        plt.ylabel("y (m)")
         plt.savefig(f'frames/frame_{i:04d}.png')
         print('Frame', i, 'saved')
         plt.close(fig)
