@@ -13,38 +13,43 @@ def main():
     if config["animations"]:
         skip_frames = 10
         # Load JSON data
-        data = load_simulation_data(10, 1)
+        data = load_simulation_data(70, 0)
         # Generate frames
         generate_frames(data, skip_frames)
         # Create GIF
         generate_gif(data, skip_frames, 5000)
         # Clean up frames
-        for file in os.listdir('./frames'):
-            os.remove(f'frames/{file}')
-        os.rmdir('frames')
+        # for file in os.listdir('./frames'):
+        #     os.remove(f'frames/{file}')
+        # os.rmdir('frames')
 
     if config["frac_zombie"]:
         generate_mean_frac_zombie_in_all_frames_plot()
-        # generate_frac_zombie_graph()
-        # generate_mean_frac_zombie_graph()
+        generate_frac_zombie_graph()
+        generate_mean_frac_zombie_graph()
 
     if config["avg_v"]:
-        generate_human_and_zombie_avg_speed_for_single_simulation_graph(90, 0)
+        generate_human_and_zombie_avg_speed_for_single_simulation_graph(40, 0)
         generate_avg_speed_graph()
         generate_avg_speed_graph_observable()
         generate_human_and_zombie_avg_speed_observable()
 
 
+def __get_dt(simulation):
+    return simulation['params']['dt']
+
+
 def generate_avg_speed_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
-    results_per_nh = {}
-    for nh in range(10, 101, 10):
-        results_per_nh[nh] = load_simulation_data(nh, 0)['results']
+    simulations_per_nh = {}
+    for nh in range(10, 101, 30):
+        simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     avg_speed_per_nh = {}
     dt_per_nh = {}
-    for nh, results in results_per_nh.items():
-        dt = results[0][0]['config']['dt']
+    for nh, simulations in simulations_per_nh.items():
+        results = simulations['results']
+        dt = __get_dt(simulations)
         dt_per_nh[nh] = dt
         avg_speed_per_dt = {}
         for i, frame in enumerate(results):
@@ -75,7 +80,7 @@ def generate_avg_speed_graph():
 def generate_avg_speed_graph_observable():
     # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
     mean_speed_per_nh_per_repetition: dict[float, list[float]] = {}
-    for nh in range(10, 101, 10):
+    for nh in range(10, 101, 30):
         mean_speed_per_nh_per_repetition[nh] = []
         for rep in range(10):
             print('Loading nh:', nh, 'rep:', rep)
@@ -113,7 +118,7 @@ def generate_human_and_zombie_avg_speed_observable():
     human_speed_per_nh_per_repetition: dict[float, list[float]] = {}
     zombie_speed_per_nh_per_repetition: dict[float, list[float]] = {}
 
-    for nh in range(10, 101, 10):
+    for nh in range(10, 101, 30):
         human_speed_per_nh_per_repetition[nh] = []
         zombie_speed_per_nh_per_repetition[nh] = []
 
@@ -172,15 +177,16 @@ def generate_human_and_zombie_avg_speed_observable():
 
 def generate_frac_zombie_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
-    results_per_nh = {}
-    for nh in range(10, 101, 10):
-        results_per_nh[nh] = load_simulation_data(nh, 0)['results']
+    simulations_per_nh = {}
+    for nh in range(10, 101, 30):
+        simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     zombie_frac_per_nh = {}
     dt_per_nh = {}
-    for nh, results in results_per_nh.items():
+    for nh, simulations in simulations_per_nh.items():
         zombie_frac = []
-        dt = results[0][0]['config']['dt']
+        results = simulations['results']
+        dt = __get_dt(simulations)
         dt_per_nh[nh] = dt
         for i, frame in enumerate(results):
             humans = sum(1 for entity in frame if entity["type"] == "human")
@@ -210,7 +216,7 @@ def generate_human_and_zombie_avg_speed_for_single_simulation_graph(nh: int, rep
     """This graph has time as X axis and speed (for humans in blue and zombies in red) as Y axis"""
     # Load JSON data
     simulation = load_simulation_data(nh, repetition_no)
-    dt = simulation['results'][0][0]['config']['dt']
+    dt = __get_dt(simulation)
 
     # Initialize dictionaries to store results
     human_speed_per_dt = {}
@@ -258,7 +264,7 @@ def generate_mean_frac_zombie_graph():
     dt_per_nh = {}
 
     # Iterate over the number of humans (nh) values
-    for nh in range(10, 101, 10):
+    for nh in range(10, 101, 30):
         total_humans_per_frame = {}
         total_zombies_per_frame = {}
         dt = None
@@ -268,7 +274,7 @@ def generate_mean_frac_zombie_graph():
             print(f'Loading nh: {nh}, rep: {rep}')
             simulation = load_simulation_data(nh, rep)
             if dt is None:
-                dt = simulation['results'][0][0]['config']['dt']  # Get dt from the first repetition
+                dt = __get_dt(simulation)  # Get dt from the first repetition
 
             # Iterate over frames but only take every 30th frame
             for i, frame in enumerate(simulation['results']):
@@ -320,20 +326,17 @@ def generate_mean_frac_zombie_graph():
 def generate_mean_frac_zombie_in_all_frames_plot():
     """This has the value of nh on the X axis and the mean fraction of zombies on the Y axis for all repetitions of that nh"""
     # Initialize variables
-    dt = None
     zombie_fraction_by_nh = {}
     std_dev_by_nh = {}
 
     # Iterate over the number of humans (nh) values
-    for nh in range(10, 101, 10):
+    for nh in range(10, 101, 30):
         zombie_fraction_in_simulation_repetition = []
 
         for rep in range(10):
             print(f'Loading nh: {nh}, rep: {rep}')
             simulation = load_simulation_data(nh, rep)
-
-            if dt is None:
-                dt = simulation['results'][0][0]['config']['dt']  # Get dt from the first repetition
+            dt = __get_dt(simulation)
 
             # Process every 30th frame to calculate zombie fraction
             zombie_fraction_in_frame = []
@@ -440,7 +443,7 @@ def generate_gif(data, skip_frames=30, max_frames=5000):
 
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../Simulation/outputs'
+    base_dir = '../outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:
@@ -470,7 +473,7 @@ def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
 
 def get_output_directory(timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../Simulation/outputs'
+    base_dir = '../outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:

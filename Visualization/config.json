@@ -1,5 +1,5 @@
 {
-    "animations": true,
-    "frac_zombie": false,
-    "avg_v": false
+    "animations": false,
+    "frac_zombie": true,
+    "avg_v": true
 }

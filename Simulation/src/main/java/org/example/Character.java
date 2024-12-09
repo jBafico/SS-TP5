@@ -1,5 +1,6 @@
 package org.example;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -10,13 +11,20 @@ import java.util.stream.Collectors;
 @Getter
 @EqualsAndHashCode
 public abstract class Character { //This class is the abstract class of the Entities of the model
+    @JsonIgnore
     private final Constants constants;
+    @JsonIgnore
     private final Coordinates coordinates; // Current X and Y positions
+    @JsonIgnore
     private final CharacterConfig config;
     private final double v; // Current velocity module
+    @JsonIgnore
     private final double theta; // Current velocity direction in radians
+    @JsonIgnore
     private final double r; // Current radius
+    @JsonIgnore
     private double remainingContagion; // The amount of time the character has to wait to move again
+    @JsonIgnore
     private boolean inContagion; // Refers to if the character is in the process of contagion
     private final String type; // Type of character
 
@@ -66,11 +74,13 @@ public abstract class Character { //This class is the abstract class of the Enti
         return coordinates.getY();
     }
 
+    @JsonIgnore
     protected double getVx() {
         // Calculate the x-component of velocity
         return v * Math.cos(theta);
     }
 
+    @JsonIgnore
     protected double getVy() {
         // Calculate the y-component of velocity
         return v * Math.sin(theta);

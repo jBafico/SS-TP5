@@ -1,7 +1,7 @@
 {
   "minNh": 10,
-  "maxNh": 20,
-  "nhIncrement": 5,
+  "maxNh": 100,
+  "nhIncrement": 30,
   "repetitions": 10,
   "maxTime": 2000,
   "arenaRadius": 11,

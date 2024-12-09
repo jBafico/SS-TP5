@@ -102,7 +102,7 @@ public class Main {
             File outputFile = new File(outputDirectoryPath, filename);
 
             // Write the SimulationResults to the file in JSON format
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, results);
+            objectMapper.writeValue(outputFile, results);
 
             System.out.printf("Results successfully written to %s\n", outputFile.getAbsolutePath());
         } catch (IOException e) {
