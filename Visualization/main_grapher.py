@@ -9,19 +9,20 @@ REPETITIONS = 5
 SKIP = 30
 
 
-
 def main():
     with open("./config.json", "r") as f:
         config = json.load(f)
 
     if config["animations"]:
-        skip_frames = 10
         # Load JSON data
-        data = load_simulation_data(70, 0)
+        data = load_simulation_data(10, 0, shoot_probability=0.1)
+
+        skip_frames = 10
+        max_frames = 5000
         # Generate frames
-        generate_frames(data, skip_frames)
+        generate_frames(data, skip_frames, max_frames)
         # Create GIF
-        generate_gif(data, skip_frames, 5000)
+        generate_gif(data, skip_frames, max_frames)
         # Clean up frames
         # for file in os.listdir('./frames'):
         #     os.remove(f'frames/{file}')
@@ -370,7 +371,7 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     plt.show()
 
 
-def generate_frames(data, skip_frames):
+def generate_frames(data, skip_frames, max_frames=5000):
     arena_radius = data["params"]["arenaRadius"]
     results = data["results"]
 
@@ -382,6 +383,8 @@ def generate_frames(data, skip_frames):
             os.remove(f'frames/{file}')
         os.rmdir('frames')
     os.makedirs('frames')
+
+    results = results[:max_frames]
 
     # Generate frames
     for i, frame in enumerate(results):
