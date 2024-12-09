@@ -323,54 +323,45 @@ def generate_mean_frac_zombie_graph():
     plt.show()
 
 
-def generate_mean_frac_zombie_in_all_frames_plot():
-    """This has the value of nh on the X axis and the mean fraction of zombies on the Y axis for all repetitions of that nh"""
+def generate_mean_last_frac_zombie_plot():
+    """This has the value of nh on the X axis and the mean last fraction of zombies on the Y axis for all repetitions of that nh."""
     # Initialize variables
     zombie_fraction_by_nh = {}
     std_dev_by_nh = {}
 
     # Iterate over the number of humans (nh) values
     for nh in range(10, 101, 30):
-        zombie_fraction_in_simulation_repetition = []
+        last_zombie_fraction_in_simulation_repetition = []
 
         for rep in range(10):
             print(f'Loading nh: {nh}, rep: {rep}')
             simulation = load_simulation_data(nh, rep)
-            dt = __get_dt(simulation)
 
-            # Process every 30th frame to calculate zombie fraction
-            zombie_fraction_in_frame = []
-            for i, frame in enumerate(simulation['results']):
-                if i % 30 != 0:
-                    continue
-
-                amount_of_humans = sum(1 for entity in frame if entity["type"] == "human")
-                amount_of_zombies = sum(1 for entity in frame if entity["type"] == "zombie")
-                zombie_fraction = (
-                    amount_of_zombies / (amount_of_humans + amount_of_zombies)
-                    if amount_of_humans + amount_of_zombies > 0
-                    else 0
-                )
-                zombie_fraction_in_frame.append(zombie_fraction)
-
-            # Calculate the mean zombie fraction for this repetition
-            mean_zombie_fraction = np.mean(zombie_fraction_in_frame)
-            zombie_fraction_in_simulation_repetition.append(mean_zombie_fraction)
+            # Process only the last frame to calculate the zombie fraction
+            last_frame = simulation['results'][-1]  # Get the last frame
+            amount_of_humans = sum(1 for entity in last_frame if entity["type"] == "human")
+            amount_of_zombies = sum(1 for entity in last_frame if entity["type"] == "zombie")
+            last_zombie_fraction = (
+                amount_of_zombies / (amount_of_humans + amount_of_zombies)
+                if amount_of_humans + amount_of_zombies > 0
+                else 0
+            )
+            last_zombie_fraction_in_simulation_repetition.append(last_zombie_fraction)
 
         # Store the mean and standard deviation for each nh
-        zombie_fraction_by_nh[nh] = np.mean(zombie_fraction_in_simulation_repetition)
-        std_dev_by_nh[nh] = np.std(zombie_fraction_in_simulation_repetition)
+        zombie_fraction_by_nh[nh] = np.mean(last_zombie_fraction_in_simulation_repetition)
+        std_dev_by_nh[nh] = np.std(last_zombie_fraction_in_simulation_repetition)
 
     # Prepare data for plotting
     nh_values = list(zombie_fraction_by_nh.keys())
     means = list(zombie_fraction_by_nh.values())
     std_devs = list(std_dev_by_nh.values())
 
-    # Plot the mean zombie fraction with error bars
+    # Plot the mean last zombie fraction with error bars
     plt.figure(figsize=(10, 6))
     plt.errorbar(nh_values, means, yerr=std_devs, fmt='-o', capsize=5, color='b', ecolor='blue')
     plt.xlabel("$N_h$")
-    plt.ylabel("$\\langle \\phi_z(N_h) \\rangle$")
+    plt.ylabel("$\\langle \\phi_z(N_h) \\rangle$ (last frame)")
     plt.grid()
     plt.show()
 
