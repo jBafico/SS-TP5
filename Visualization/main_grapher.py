@@ -5,6 +5,9 @@ import os
 import re
 import numpy as np
 
+REPETITIONS = 5
+SKIP = 30
+
 
 def main():
     with open("./config.json", "r") as f:
@@ -42,7 +45,7 @@ def __get_dt(simulation):
 def generate_avg_speed_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
-    for nh in range(10, 101, 30):
+    for nh in range(10, 101, SKIP):
         simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     avg_speed_per_nh = {}
@@ -80,9 +83,9 @@ def generate_avg_speed_graph():
 def generate_avg_speed_graph_observable():
     # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
     mean_speed_per_nh_per_repetition: dict[float, list[float]] = {}
-    for nh in range(10, 101, 30):
+    for nh in range(10, 101, SKIP):
         mean_speed_per_nh_per_repetition[nh] = []
-        for rep in range(10):
+        for rep in range(REPETITIONS):
             print('Loading nh:', nh, 'rep:', rep)
             simulation = load_simulation_data(nh, rep)
             total_speed_in_simulation = 0
@@ -118,11 +121,11 @@ def generate_human_and_zombie_avg_speed_observable():
     human_speed_per_nh_per_repetition: dict[float, list[float]] = {}
     zombie_speed_per_nh_per_repetition: dict[float, list[float]] = {}
 
-    for nh in range(10, 101, 30):
+    for nh in range(10, 101, SKIP):
         human_speed_per_nh_per_repetition[nh] = []
         zombie_speed_per_nh_per_repetition[nh] = []
 
-        for rep in range(10):
+        for rep in range(REPETITIONS):
             print('Loading nh:', nh, 'rep:', rep)
             simulation = load_simulation_data(nh, rep)
 
@@ -178,7 +181,7 @@ def generate_human_and_zombie_avg_speed_observable():
 def generate_frac_zombie_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
-    for nh in range(10, 101, 30):
+    for nh in range(10, 101, SKIP):
         simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     zombie_frac_per_nh = {}
@@ -264,13 +267,13 @@ def generate_mean_frac_zombie_graph():
     dt_per_nh = {}
 
     # Iterate over the number of humans (nh) values
-    for nh in range(10, 101, 30):
+    for nh in range(10, 101, SKIP):
         total_humans_per_frame = {}
         total_zombies_per_frame = {}
         dt = None
 
         # Load each repetition and accumulate totals for each frame
-        for rep in range(10):
+        for rep in range(REPETITIONS):
             print(f'Loading nh: {nh}, rep: {rep}')
             simulation = load_simulation_data(nh, rep)
             if dt is None:
@@ -330,10 +333,10 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     std_dev_by_nh = {}
 
     # Iterate over the number of humans (nh) values
-    for nh in range(10, 101, 30):
+    for nh in range(10, 101, SKIP):
         last_zombie_fraction_in_simulation_repetition = []
 
-        for rep in range(3):
+        for rep in range(REPETITIONS):
             print(f'Loading nh: {nh}, rep: {rep}')
             simulation = load_simulation_data(nh, rep)
 
