@@ -333,7 +333,7 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     for nh in range(10, 101, 30):
         last_zombie_fraction_in_simulation_repetition = []
 
-        for rep in range(10):
+        for rep in range(3):
             print(f'Loading nh: {nh}, rep: {rep}')
             simulation = load_simulation_data(nh, rep)
 
