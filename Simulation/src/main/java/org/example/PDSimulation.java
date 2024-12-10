@@ -46,17 +46,12 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
             Set<Character> contagionCharacters = new HashSet<>();
 
             for (Character character : newState){
-                // If the character is not a human, he can't shoot
                 if (!(character instanceof Human)) {
                     continue;
                 }
                 
                 Human human = (Human) character;
 
-                // If the human is already in the contagion process, he can't shoot
-                if (human.isInContagion()) {
-                    continue;
-                }
 
                 Zombie collidingZombie = human.collidingZombie(newState);
 
@@ -106,7 +101,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                     Zombie nearestZombie = (Zombie) human.findNNearestZombies(newState, 1).getFirst();
 
                     // If the zombie is in the shooting range, shoot it with the given probability
-                    if (human.distanceToCollision(nearestZombie) <= params.maxShootRange()) {
+                    if (!human.isInContagion() && human.distanceToCollision(nearestZombie) <= params.maxShootRange()) {
                         if (Math.random() < params.shootProbability()) {
                             shotCharacters.add(nearestZombie);
                         }
