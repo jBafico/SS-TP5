@@ -6,7 +6,7 @@ import re
 import numpy as np
 
 REPETITIONS = 50
-SKIP = 10
+SKIP = 40
 
 
 def main():
@@ -32,7 +32,7 @@ def main():
         generate_mean_frac_zombie_graph()
 
     if config["avg_v"]:
-        generate_human_and_zombie_avg_speed_for_single_simulation_graph(40, 0)
+        generate_human_and_zombie_avg_speed_for_single_simulation_graph(10, 0)
         generate_avg_speed_graph()
         generate_avg_speed_graph_observable()
         generate_human_and_zombie_avg_speed_observable()
@@ -46,7 +46,7 @@ def generate_avg_speed_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
     output_directory='avg_v_vs_time'
-    for nh in range(30, 51, SKIP):
+    for nh in range(10, 91, SKIP):
         simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     avg_speed_per_nh = {}
@@ -92,7 +92,7 @@ def generate_avg_speed_graph_observable():
     # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
     mean_speed_per_nh_per_repetition: dict[float, list[float]] = {}
     output_directory='avg_v_vs_time'
-    for nh in range(30, 51, SKIP):
+    for nh in range(10, 91, SKIP):
         mean_speed_per_nh_per_repetition[nh] = []
         for rep in range(REPETITIONS):
             print('Loading nh:', nh, 'rep:', rep)
@@ -138,7 +138,7 @@ def generate_human_and_zombie_avg_speed_observable():
     zombie_speed_per_nh_per_repetition: dict[float, list[float]] = {}
     output_directory='avg_v_vs_time'
 
-    for nh in range(30, 51, SKIP):
+    for nh in range(10, 91, SKIP):
         human_speed_per_nh_per_repetition[nh] = []
         zombie_speed_per_nh_per_repetition[nh] = []
 
@@ -193,7 +193,7 @@ def generate_human_and_zombie_avg_speed_observable():
     plt.legend()
     plt.grid(True)
     # Define the output file path with dt in the filename
-    file_path = os.path.join(output_directory, f"avg_v_vs_nh_observable.png")
+    file_path = os.path.join(output_directory, f"avg_v_vs_nh_zombie_human_observable.png")
 
     # Save the plot to the file
     plt.savefig(file_path)
@@ -206,7 +206,7 @@ def generate_frac_zombie_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
     output_directory='frac_zombies_vs_time'
-    for nh in range(30, 51, SKIP):
+    for nh in range(10, 91, SKIP):
         simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     zombie_frac_per_nh = {}
@@ -305,10 +305,10 @@ def generate_mean_frac_zombie_graph():
     mean_zombie_frac_per_nh = {}
     std_zombie_frac_per_nh = {}
     dt_per_nh = {}
-    output_directory='frac_zombies_vs_nh'
+    output_directory='frac_zombies_vs_time'
 
     # Iterate over the number of humans (nh) values
-    for nh in range(30, 51, SKIP):
+    for nh in range(10, 91, SKIP):
         total_humans_per_frame = {}
         total_zombies_per_frame = {}
         dt = None
@@ -381,7 +381,7 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     std_dev_by_nh = {}
     output_directory='frac_zombies_vs_nh'
     # Iterate over the number of humans (nh) values
-    for nh in range(30, 51, SKIP):
+    for nh in range(10, 91, SKIP):
         last_zombie_fraction_in_simulation_repetition = []
 
         for rep in range(REPETITIONS):
@@ -415,7 +415,7 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     plt.ylabel("$\\langle \\phi_z(N_h) \\rangle$ (last frame)")
     plt.grid()
     # Define the output file path with dt in the filename
-    file_path = os.path.join(output_directory, f"frac_zombies_vs_nh.png")
+    file_path = os.path.join(output_directory, f"frac_zombies_vs_nh_last_fraction.png")
 
     # Save the plot to the file
     plt.savefig(file_path)
@@ -495,7 +495,7 @@ def generate_gif(data, skip_frames=30, max_frames=5000):
 
 def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None):
     # Base directory where the simulation files are stored
-    base_dir = '../outputs'
+    base_dir = '../Simulation/outputs'
 
     # Determine the directory based on the timestamp or find the newest one
     if timestamp:
