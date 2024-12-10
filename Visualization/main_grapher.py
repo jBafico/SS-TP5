@@ -4,14 +4,27 @@ import imageio
 import os
 import re
 import numpy as np
+import time
+import gc
 
-REPETITIONS = 50
-SKIP = 10
-
+REPETITIONS = None
+SKIP = None
 
 def main():
+    global REPETITIONS, SKIP  # Declare them as global
     with open("./config.json", "r") as f:
         config = json.load(f)
+
+    REPETITIONS = config["repetitions"]
+    SKIP = config["skip"]
+
+    if config["withShooting"]:
+        if config["frac_zombie"]:
+            generate_frac_zombie_graph_shooting(config["fixedNHforProb"],config["initialProbability"],config["finalProbability"], config["probabilityStep"])
+        if config["frac_zombie_observable"]:
+            generate_mean_frac_zombie_graph_shooting_observable(config["fixedNHforProb"],config["initialProbability"],config["finalProbability"],config["probabilityStep"])
+        return
+
 
     if config["animations"]:
         # Load JSON data
@@ -497,7 +510,7 @@ def generate_gif(data, skip_frames=30, max_frames=5000):
             print(f'Creating GIF: {counter / len(frames) * 100:.2f}% done. {counter / skip_frames}/{len(frames) / skip_frames} frames processed.')
 
 
-def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None, shoot_probability: float | None = None):
+def load_simulation_data(nh: int, repetition_no: int, timestamp: str = None, shoot_probability: str | None = None):
     # Base directory where the simulation files are stored
     base_dir = '../outputs'
 
@@ -562,5 +575,146 @@ def ensure_output_directory_creation(directory):
         print(f"Directory '{directory}' already exists.")
 
 
+
+
+
+
+
+
+def generate_frac_zombie_graph_shooting(fixedNH,initialProb, finalProb, probStep):
+    ensure_output_directory_creation("frac_zombies_vs_time_probability")
+    # Load JSON data (for nh in 10, 20, ..., 100)
+    simulations_per_probability = {}
+    output_directory='frac_zombies_vs_time_probability'
+    ensure_output_directory_creation(output_directory)
+    initial_probability = initialProb
+    final_probability = finalProb
+    probability_step = probStep
+
+    # Scale up by a factor of 100 to use integers
+    scale_factor = 100
+    scaled_initial = int(initial_probability * scale_factor)
+    scaled_final = int(final_probability * scale_factor)
+    scaled_step = int(probability_step * scale_factor)
+
+
+    for scaled_prob in range(scaled_initial, scaled_final + 1, scaled_step):
+        probability = scaled_prob / scale_factor
+        print(probability)
+        simulations_per_probability[probability] = load_simulation_data(fixedNH, 0,None,f"{probability:.2f}" )
+    zombie_frac_per_probability = {}
+    dt_per_probability = {}
+    for probability, simulations in simulations_per_probability.items():
+        zombie_frac = []
+        results = simulations['results']
+        dt = __get_dt(simulations)
+        dt_per_probability[probability] = dt
+        for i, frame in enumerate(results):
+            humans = sum(1 for entity in frame if entity["type"] == "human")
+            zombies = sum(1 for entity in frame if entity["type"] == "zombie")
+            if humans + zombies > 0:
+                zombie_frac.append(zombies / (humans + zombies))
+            else:
+                zombie_frac.append(0)
+        zombie_frac_per_probability[probability] = zombie_frac
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    for probability, zombie_frac in zombie_frac_per_probability.items():
+        # Generate time axis based on dt
+        time_axis = [i * dt_per_probability[probability] for i in range(len(zombie_frac))]
+        plt.plot(time_axis, zombie_frac, label=f"$p$ = {probability}")
+
+    # Add labels and title
+    plt.xlabel("Tiempo (s)")
+    plt.ylabel("$\\phi_z(t)$")
+    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_vs_time_{time.time()}.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path, bbox_inches='tight')  # Ensure the legend is included in the saved file
+
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+
+
+
+
+def generate_mean_frac_zombie_graph_shooting_observable(fixedNH,initialProb, finalProb, probStep):
+    # Initialize dictionaries to store results
+    probability_to_repetitions_factor_list: dict[str, list[float]] = {}
+    output_directory='frac_zombies_vs_probability_observable'
+    ensure_output_directory_creation(output_directory)
+
+    dt = None
+
+
+    # Scale up by a factor of 100 to use integers
+    scale_factor = 100
+    scaled_initial = int(initialProb * scale_factor)
+    scaled_final = int(finalProb * scale_factor)
+    scaled_step = int(probStep * scale_factor)
+
+
+
+    for scaled_prob in range(scaled_initial, scaled_final + 1, scaled_step):
+        probability = scaled_prob / scale_factor
+        probability_to_repetitions_factor_list[probability] = []
+        for rep in range(0, REPETITIONS):
+            print("Loading repetition",rep,"for probability",probability)
+            simulation = load_simulation_data(fixedNH, rep,None,f"{probability:.2f}" )
+            if dt is None:
+                dt = __get_dt(simulation)  # Get dt from the first repetition
+
+            # Iterate over frames but only take every 30th frame
+            realization_frames = []
+            humans = 0
+            zombies = 0
+            for i, frame in enumerate(simulation['results']):
+                for entity in frame:
+                    if entity["type"] == "human":
+                        humans += 1
+                    elif entity["type"] == "zombie":
+                        zombies += 1
+                zombie_fracc = zombies / (zombies + humans)
+                realization_frames.append(zombie_fracc)
+            
+            probability_to_repetitions_factor_list[probability].append(np.mean(realization_frames))
+            gc.collect()
+    
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    x_axis = []
+    # Calculate means and standard deviations
+    means = []
+    errors = []
+    for prob in probability_to_repetitions_factor_list.keys():
+        # Extract time and fraction values for plotting
+        x_axis.append(prob)
+        repetition_values = probability_to_repetitions_factor_list[prob]
+        means.append(np.mean(repetition_values))
+        errors.append(np.std(repetition_values)) 
+
+    # Add labels and title
+    plt.errorbar(x_axis, means, yerr=errors)
+    plt.xlabel("Probabilidades")
+    plt.ylabel("$\\langle \\phi_z \\rangle$")
+    plt.legend()
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_observables.png")
+    # Save the plot to the file
+    plt.savefig(file_path)
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+
 if __name__ == "__main__":
     main()
+
+

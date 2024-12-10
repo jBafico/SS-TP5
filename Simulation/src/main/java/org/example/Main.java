@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,7 +53,7 @@ public class Main {
                         SimulationResults results = simulation.run();
 
                         // Write the results to a file
-                        writeOutput(results, outputDirectoryPath.toString());
+                        writeOutput(results, outputDirectoryPath.toString(), shootProbability);
                     }
                 }
             }
@@ -87,7 +88,7 @@ public class Main {
         }
     }
 
-    public static void writeOutput(SimulationResults results, String outputDirectoryPath) {
+    public static void writeOutput(SimulationResults results, String outputDirectoryPath,double shootProbability) {
         try {
             // Create the output directory if it doesn't exist
             Files.createDirectories(Path.of(outputDirectoryPath));
@@ -95,20 +96,25 @@ public class Main {
             // Create an ObjectMapper instance
             ObjectMapper objectMapper = new ObjectMapper();
 
-            String formattedShootProbability = String.format("%.1f", results.params().shootProbability());
+            String formattedShootProbability = formatFloat(shootProbability);
 
             // Define the output file with a unique name for each simulation result
-            String filename = String.format("simulation_nh_%d_repetition_%d_shoot_probability_%s.json",
-                    results.params().nh(), results.params().repetition_no(), formattedShootProbability);
+            System.out.printf("Shoot prob %s%n", formattedShootProbability);
+            String filename = String.format("simulation_nh_%d_repetition_%d_shoot_probability_%s.json", results.params().nh(), results.params().repetition_no(), formattedShootProbability);
             File outputFile = new File(outputDirectoryPath, filename);
 
             // Write the SimulationResults to the file in JSON format
             objectMapper.writeValue(outputFile, results);
 
             System.out.printf("Results successfully written to %s\n", outputFile.getAbsolutePath());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String formatFloat(double value) {
+        return String.format("%.2f", value);
     }
 
 
