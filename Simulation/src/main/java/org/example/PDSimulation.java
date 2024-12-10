@@ -45,11 +45,19 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
             // Temporary set to store the characters participating in contagion process
             Set<Character> contagionCharacters = new HashSet<>();
 
-            for(Character character : newState){
+            for (Character character : newState){
+                // If the character is not a human, he can't shoot
                 if (!(character instanceof Human)) {
                     continue;
                 }
+                
                 Human human = (Human) character;
+
+                // If the human is already in the contagion process, he can't shoot
+                if (human.isInContagion()) {
+                    continue;
+                }
+
                 Zombie collidingZombie = human.collidingZombie(newState);
 
                 // If the human is not colliding with any zombies, continue to the next human
