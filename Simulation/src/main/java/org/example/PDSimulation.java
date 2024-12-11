@@ -41,7 +41,6 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
             List<Character> newState = new ArrayList<>();
             currentState.forEach(character -> newState.add(character.getNext(currentState, wall)));
 
-
             // Temporary set to store the characters participating in contagion process
             Set<Character> contagionCharacters = new HashSet<>();
 
@@ -88,8 +87,8 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                 int humanAmount = (int) newState.stream().filter(c -> c instanceof Human).count();
                 minShootProportionReached = zombieAmount >= Math.ceil(params.minShootProportion() * humanAmount);
             }
-            // Do the shoot logic if we are on the right time, and we have the sufficient amount of zombies
-            else if (iterationNo % params.shootInterval() == 0) {
+            // Do the shoot logic, and we have the sufficient amount of zombies
+            else {
                 List<Character> shotCharacters = new ArrayList<>();
                 for (Character character : newState) {
                     if (character instanceof Zombie){
@@ -101,7 +100,8 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                     Zombie nearestZombie = (Zombie) human.findNNearestZombies(newState, 1).getFirst();
 
                     // If the zombie is in the shooting range, shoot it with the given probability
-                    if (!human.isInContagion() && human.distanceToCollision(nearestZombie) <= params.maxShootRange()) {
+                    if (!human.isInContagion() && human.distanceToCollision(nearestZombie) <= params.maxShootRange() && human.canShoot()) {
+                        human.shoot();
                         if (Math.random() < params.shootProbability()) {
                             shotCharacters.add(nearestZombie);
                         }
@@ -137,7 +137,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                 .average()
                 .orElse(0);
 
-        System.out.println("Simulation finish status: " + simulationStatusMsg);
+        System.out.println("Simulation finish status: " + simulationStatusMsg + " in " + iterationNo + " iterations");
         return new SimulationResults(params, resultsList, meanSpeed);
     }
 
@@ -159,7 +159,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         while (generatedCharacters.size() <= params.nh()) {
             // Generate new characters with random coordinates
             Coordinates coordinates = wall.generateRandomCoordinatesInWall(params.nonSpawnR());
-            newCharacter = new Human(coordinates, params.constants(), humanConfig, false);
+            newCharacter = new Human(coordinates, params.constants(), humanConfig, false, params.shootReloadTime());
 
             // Check if new character collides with any other particle in the list
             boolean collides = false;

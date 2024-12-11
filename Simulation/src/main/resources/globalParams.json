@@ -2,8 +2,8 @@
   "minNh": 100,
   "maxNh": 100,
   "nhIncrement": 30,
-  "repetitions": 5,
-  "maxTime": 3000,
+  "repetitions": 3,
+  "maxTime": 300,
   "arenaRadius": 11,
   "nonSpawnR": 1,
   "rMin": 0.15,
@@ -24,9 +24,9 @@
   "zombieImportanceDecayAlpha": 4,
   "wallImportanceDecayAlpha": 1,
   "maxShootRange": 1,
-  "minShootProbability": 0.0,
+  "minShootProbability": 0,
   "maxShootProbability": 0.1,
-  "shootProbabilityIncrement": 0.02,
-  "shootInterval": 50,
+  "shootProbabilityIncrement": 0.01,
+  "shootReloadTime": 15,
   "minShootProportion": 0
 }

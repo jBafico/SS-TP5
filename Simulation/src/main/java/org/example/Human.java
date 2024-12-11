@@ -3,17 +3,41 @@ package org.example;
 import java.util.List;
 
 public class Human extends Character {
-    public Human(Coordinates coordinates, Constants constants, CharacterConfig config, boolean inContagion) {
-        super(coordinates, constants, config, "human", inContagion);
+    private final int shootReloadTime; // The time it takes for the human to reload
+    private final int shootReloadTimeLeft; // The time left for the human to reload
+    private boolean hasShot = false; // Whether the human has shot
+
+    public boolean canShoot() {
+        return this.shootReloadTimeLeft == 0;
     }
 
-    private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion, boolean inContagion) {
+    public void shoot() {
+        this.hasShot = true;
+    }
+
+    public Human(Coordinates coordinates, Constants constants, CharacterConfig config, boolean inContagion, int shootReloadTime) {
+        super(coordinates, constants, config, "human", inContagion);
+        this.shootReloadTime = shootReloadTime;
+        this.shootReloadTimeLeft = 0;
+    }
+
+    private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion, boolean inContagion, int shootReloadTime, int shootReloadTimeLeft) {
         super(coordinates, constants, config, v, theta, r, "human", remainingContagion, inContagion);
+        this.shootReloadTime = shootReloadTime;
+        this.shootReloadTimeLeft = shootReloadTimeLeft;
     }
 
     @Override
     protected Character createNextInstance(Coordinates coordinates, double v, double theta, double r, double remainingContagion, boolean inContagion) {
-        return new Human(coordinates, this.getConstants(), this.getConfig(), v, theta, r, remainingContagion, inContagion);
+        int newShootReloadTimeLeft;
+        if (this.hasShot) { // If the human has shot, reset the reload time
+            newShootReloadTimeLeft = this.shootReloadTime;
+        } else if (this.shootReloadTimeLeft > 0) { // If the human has not shot, decrement the reload time
+            newShootReloadTimeLeft = this.shootReloadTimeLeft - 1;
+        } else { // If the reload time is already 0, keep it at 0
+            newShootReloadTimeLeft = 0;
+        }
+        return new Human(coordinates, this.getConstants(), this.getConfig(), v, theta, r, remainingContagion, inContagion, shootReloadTime, newShootReloadTimeLeft);
     }
 
 

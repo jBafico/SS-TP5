@@ -1,22 +1,15 @@
 package org.example;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -47,7 +40,7 @@ public class Main {
                                 nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(),
                                 new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(),
                                 params.nearestHumansToConsider(), params.nearestZombiesToConsider(), params.nearestHumansImportance(), params.nearestZombiesImportance(), params.wallImportance(), params.humanImportanceDecayAlpha(), params.zombieImportanceDecayAlpha(), params.wallImportanceDecayAlpha(),
-                                params.maxShootRange(), shootProbability, params.shootInterval(), params.minShootProportion()
+                                params.maxShootRange(), shootProbability, params.shootReloadTime(), params.minShootProportion()
                         );
                         PDSimulation simulation = new PDSimulation(simulationParams);
                         SimulationResults results = simulation.run();

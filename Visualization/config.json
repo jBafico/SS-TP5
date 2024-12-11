@@ -4,10 +4,10 @@
     "avg_v": false,
     "repetitions":10,
     "skip" :10,
-    "withShooting": true,
+    "withShooting": false,
     "initialProbability": 0.02,
     "finalProbability": 0.1,
     "probabilityStep": 0.02,
     "fixedNHforProb": 100,
-    "frac_zombie_observable": true
+    "frac_zombie_observable": false
 }

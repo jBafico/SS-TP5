@@ -27,8 +27,8 @@ public record GlobalParams(
         int nearestHumansImportance, // Importance of nearest humans in getNextDesiredTheta
         double nearestZombiesImportance, // Importance of nearest zombies in getNextDesiredTheta
         double wallImportance, // Importance of wall in getNextDesiredTheta
-        double humanImportanceDecayAlpha, // Alpha parameter for the exponential decay of the importance of the nearest humans
-        double zombieImportanceDecayAlpha, // Alpha parameter for the exponential decay of the importance of the nearest zombies
+        double humanImportanceDecayAlpha,// Alpha parameter for the exponential decay of the importance of the nearest humans
+        double zombieImportanceDecayAlpha,// Alpha parameter for the exponential decay of the importance of the nearest zombies
         double wallImportanceDecayAlpha, // Alpha parameter for the exponential decay of the importance of the wall
 
         // Params for shooting
@@ -36,6 +36,6 @@ public record GlobalParams(
         double minShootProbability, // Minimum probability of a zombie being killed
         double maxShootProbability, // Maximum probability of a zombie being killed
         double shootProbabilityIncrement, // Increment of the probability of a zombie being killed
-        int shootInterval, // Time interval between shots
+        int shootReloadTime, // Time interval between shots
         double minShootProportion // Minimum proportion of zombies to shoot
 ) { }

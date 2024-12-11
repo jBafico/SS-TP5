@@ -20,7 +20,7 @@ def main():
 
     if config["withShooting"]:
         if config["frac_zombie"]:
-            generate_frac_zombie_graph_shooting(config["fixedNHforProb"],config["initialProbability"],config["finalProbability"], config["probabilityStep"])
+            generate_frac_zombie_graph_shooting(config["fixedNHforProb"], config["initialProbability"], config["finalProbability"], config["probabilityStep"])
         if config["frac_zombie_observable"]:
             generate_mean_frac_zombie_graph_shooting_observable(config["fixedNHforProb"],config["initialProbability"],config["finalProbability"],config["probabilityStep"])
         return
@@ -28,14 +28,14 @@ def main():
 
     if config["animations"]:
         # Load JSON data
-        data = load_simulation_data(10, 0, shoot_probability=0.1)
+        data = load_simulation_data(100, 1, shoot_probability='0.10')
 
-        skip_frames = 10
-        max_frames = 5000
+        skip_frames = 20
+        max_frames = 100000
         # Generate frames
         generate_frames(data, skip_frames, max_frames)
         # Create GIF
-        generate_gif(data, skip_frames, max_frames)
+        generate_gif(data, 1, max_frames)
         # Clean up frames
         # for file in os.listdir('./frames'):
         #     os.remove(f'frames/{file}')
