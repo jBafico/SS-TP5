@@ -154,7 +154,13 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
 
     private List<Character> generateRandomCharacters(Wall wall) {
         List<Character> generatedCharacters = new ArrayList<>();
-        Character newCharacter = new Zombie(new Coordinates(0, 0), params.constants(), zombieConfig, 0, false);
+
+        // Generate 1st Zombie
+        Character newCharacter = new Zombie(new Coordinates(-4, 0), params.constants(), zombieConfig, 0, false);
+        generatedCharacters.add(newCharacter);
+
+        // Generate 2nd Zombie
+        newCharacter = new Zombie(new Coordinates(4, 0), params.constants(), zombieConfig, 0, false);
         generatedCharacters.add(newCharacter);
 
         // Generate nh Humans
