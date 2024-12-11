@@ -22,22 +22,29 @@ def main():
         withFixedProbabilityConfig = config["withFixedProbability"]
         if withFixedProbabilityConfig["avg_speed_temporal_shooting"]:
             avg_speed_temporal_shooting(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+            gc.collect()
         if withFixedProbabilityConfig["avg_speed_observable"]:
             generate_avg_speed_graph_observable_for_shooting_fixed_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+            gc.collect()
 
 
         if withFixedProbabilityConfig["frac_zombie_shooting_fixed_nh_temporal"]:
             generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+            gc.collect()
 
         if withFixedProbabilityConfig["frac_zombie_shooting_fixed_nh_observable"]:
             generate_mean_frac_zombie_graph_shooting_observable_last_frame_fixed_nh_variable_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+            gc.collect()
 
 
         withVariableProbabilityConfig = config["withVariableProbability"]
         if withVariableProbabilityConfig["frac_zombie"]:
             generate_frac_zombie_graph_shooting(withFixedProbabilityConfig["fixedNHforProb"], withFixedProbabilityConfig["initialProbability"], withFixedProbabilityConfig["finalProbability"], withFixedProbabilityConfig["probabilityStep"])
+            gc.collect()
+
         if withVariableProbabilityConfig["frac_zombie_observable"]:
             generate_mean_frac_zombie_graph_shooting_observable_last_frame(withFixedProbabilityConfig["fixedNHforProb"],withFixedProbabilityConfig["initialProbability"],config["finalProbability"],withFixedProbabilityConfig["probabilityStep"])
+
         return
 
     if config["animations"]:
@@ -819,12 +826,11 @@ def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repe
     nh_to_avg_speed_simulation : dict[int,list] = {}
     output_directory='avg_speed_temporal_shooting'
     ensure_output_directory_creation(output_directory)
-    for humans in range(initialNh, finalNh+ 1, stepNh):
+    for humans in range(initialNh, finalNh + 1, stepNh):
+        print("in avg_speed_temporal_shooting loading", humans)
         nh_to_avg_speed_simulation[humans] = load_simulation_data(humans, repetition_no, None ,fixedProb)
     
-   
-    for humans in nh_to_avg_speed_simulation.keys():
-        nh_to_avg_speed_simulation[humans] = []
+ 
 
     avg_speed_per_nh = {}
     dt_per_nh = {}
@@ -839,7 +845,7 @@ def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repe
             speed_modulus_avg_in_dt = speed_modulus_sum_in_dt / len(frame) if frame else 0
             avg_speed_per_dt[i * dt] = speed_modulus_avg_in_dt
         avg_speed_per_nh[nh] = avg_speed_per_dt
-        del nh_to_avg_speed_simulation[humans]
+        nh_to_avg_speed_simulation[nh] = None
         gc.collect()
 
     # Plot the graph with `dt` on the x-axis
@@ -856,7 +862,7 @@ def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repe
     plt.legend()
     plt.grid(True)
     # Define the output file path with dt in the filename
-    file_path = os.path.join(output_directory, f"avg_v_vs_time.png")
+    file_path = os.path.join(output_directory, f"avg_v_vs_time_{time.time()}.png")
     # Save the plot to the file
     plt.savefig(file_path)
     # Optionally, you can clear the current figure to prevent overlay issues in future plots
@@ -864,22 +870,21 @@ def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repe
 
 
 def generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(initialNh, finalNh, stepNh, fixedProb):
-    ensure_output_directory_creation("frac_zombies_vs_time_probability")
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
-    output_directory='frac_zombies_vs_time_probability_fixed_prob_variable_nh'
+    output_directory='generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob'
     ensure_output_directory_creation(output_directory)
 
 
     for humans in range(initialNh, finalNh + 1, stepNh):
-        simulations_per_nh[humans] = load_simulation_data(humans, 0,None,f"{fixedProb:.2f}" )
+        simulations_per_nh[humans] = load_simulation_data(humans, 0,None,f"{fixedProb}" )
     zombie_frac_per_nh = {}
     dt_per_nh = {}
-    for humans, simulations in simulations_per_nh.items():
+    for nh, simulations in simulations_per_nh.items():
         zombie_frac = []
         results = simulations['results']
         dt = __get_dt(simulations)
-        dt_per_nh[humans] = dt
+        dt_per_nh[nh] = dt
         for i, frame in enumerate(results):
             humans = sum(1 for entity in frame if entity["type"] == "human")
             zombies = sum(1 for entity in frame if entity["type"] == "zombie")
@@ -887,7 +892,7 @@ def generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(initialNh, f
                 zombie_frac.append(zombies / (humans + zombies))
             else:
                 zombie_frac.append(0)
-        zombie_frac_per_nh[humans] = zombie_frac
+        zombie_frac_per_nh[nh] = zombie_frac
 
     # Plot the graph with `dt` on the x-axis
     plt.figure(figsize=(10, 6))
@@ -920,13 +925,11 @@ def generate_mean_frac_zombie_graph_shooting_observable_last_frame_fixed_nh_vari
     ensure_output_directory_creation(output_directory)
 
 
-    for humans in range(initialNh, finalNh + 1, stepNh):
-        humans_to_repetitions_factor_list[humans] = []
+    for nh in range(initialNh, finalNh + 1, stepNh):
+        humans_to_repetitions_factor_list[nh] = []
         for rep in range(0, REPETITIONS):
-            print("Loading repetition",rep,"for probability",fixedProb, "Prob fixed, rep variable")
-            simulation = load_simulation_data(humans, rep,None,f"{fixedProb:.2f}" )
-            if dt is None:
-                dt = __get_dt(simulation)  # Get dt from the first repetition
+            print("Loading repetition",rep, "nh",nh,"for probability fixed",fixedProb )
+            simulation = load_simulation_data(nh, rep,None,f"{fixedProb}" )
 
             last_frame = simulation['results'][-1]  # Get the last frame
             humans = 0
@@ -938,7 +941,7 @@ def generate_mean_frac_zombie_graph_shooting_observable_last_frame_fixed_nh_vari
                 elif entity["type"] == "zombie":
                     zombies += 1
             
-            humans_to_repetitions_factor_list[humans].append(zombies / (humans + zombies))
+            humans_to_repetitions_factor_list[nh].append(zombies / (humans + zombies))
             gc.collect()
     
 
@@ -977,16 +980,17 @@ def generate_avg_speed_graph_observable_for_shooting_fixed_prob(initialNh, final
     for nh in range(initialNh, finalNh + 1, stepNh):
         mean_speed_per_nh_per_repetition[nh] = []
         for rep in range(REPETITIONS):
-            print('Loading nh:', nh, 'rep:', rep," for avg_speed_observable_fixed_nh")
-            simulation = load_simulation_data(nh, rep , f"{fixedProb:.2f}")
+            
+            print('Loading in generate_avg_speed_graph_observable_for_shooting_fixed_prob  nh:', nh, 'rep:', rep," for avg_speed_observable_fixed_nh")
+            simulation = load_simulation_data(nh, rep , None,f"{fixedProb}")
             total_speed_in_simulation = 0
             for frame in simulation['results']:
                 total_speed_in_simulation += sum(character['v'] for character in frame)
             mean_speed_per_nh_per_repetition[nh].append(total_speed_in_simulation / (len(simulation['results']) * (nh + 1)))
 
+
     avg_speed_per_nh = {}
     std_dev_per_nh = {}
-
     for nh, speed_list in mean_speed_per_nh_per_repetition.items():
         # Compute the average speed and standard deviation across all repetitions for each nh
         avg_speed_per_nh[nh] = np.mean(speed_list)
@@ -999,7 +1003,6 @@ def generate_avg_speed_graph_observable_for_shooting_fixed_prob(initialNh, final
     std_devs = list(std_dev_per_nh.values())
 
     plt.errorbar(nh_values, avg_speeds, yerr=std_devs, marker='o', linestyle='-', color='b', capsize=5)
-
     # Add labels and title
     plt.xlabel("$N_h$")
     plt.ylabel("$\\bar{v}(m/s)$")

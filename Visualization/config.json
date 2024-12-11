@@ -2,28 +2,28 @@
     "animations": false,
     "frac_zombie": true,
     "avg_v": true,
-    "repetitions":10,
+    "repetitions":5,
     "skip" :10,
 
     "withShooting": true,
     "withVariableProbability" : {
-        "initialProbability": 0.02,
-        "finalProbability": 0.1,
-        "probabilityStep": 0.02,
+        "initialProbability": 0.1,
+        "finalProbability": 0.5,
+        "probabilityStep": 0.1,
         "fixedNHforProb": 100,
         "frac_zombie_observable": false,
-        "frac_zombie": true
+        "frac_zombie": false
     },
 
     "withFixedProbability" : {
-        "initialNh": 10,
+        "initialNh": 50,
         "finalNh": 100,
-        "stepNh": 20,
-        "probability": "0.2",
-        "avg_speed_temporal_shooting": true,
+        "stepNh": 10,
+        "probability": "0.20",
+        "avg_speed_temporal_shooting": false,
         "avg_speed_observable": false,
         "frac_zombie_shooting_fixed_nh_temporal" : false,
-        "frac_zombie_shooting_fixed_nh_observable": false
+        "frac_zombie_shooting_fixed_nh_observable": true
     }
     
 

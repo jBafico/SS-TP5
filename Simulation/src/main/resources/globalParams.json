@@ -1,9 +1,9 @@
 {
-  "minNh": 100,
+  "minNh": 50,
   "maxNh": 100,
-  "nhIncrement": 30,
-  "repetitions": 3,
-  "maxTime": 300,
+  "nhIncrement": 10,
+  "repetitions": 5,
+  "maxTime": 30,
   "arenaRadius": 11,
   "nonSpawnR": 1,
   "rMin": 0.15,
@@ -26,7 +26,7 @@
   "maxShootRange": 1,
   "minShootProbability": 0.1,
   "maxShootProbability": 0.5,
-  "shootProbabilityIncrement": 0.05,
+  "shootProbabilityIncrement": 0.1,
   "shootReloadTime": 54,
   "minShootProportion": 0
 }
