@@ -41,12 +41,15 @@ def main():
         #     os.remove(f'frames/{file}')
         # os.rmdir('frames')
 
-    if config["frac_zombie"]:
+    if config["frac_zombie"]: 
+        #TODO estos graficos pero con Nh y Pe en el eje x (DE ACA SACAMOS 2 OBSERVABLES) 
+        # 1 Observable con Nh Fijo y Pe variando
+        # 2 Observalbe con Nh variable y Pe fijo
         generate_mean_frac_zombie_in_all_frames_plot()
         generate_frac_zombie_graph()
         generate_mean_frac_zombie_graph()
 
-    if config["avg_v"]:
+    if config["avg_v"]: #TODO esto creo que lo podemos dejar igual pero hay que agregar que Pe fijo estamos agarrando, variar Nh y dejar Pe fijo y hablar acerca de compararlo con el TP5 
         generate_human_and_zombie_avg_speed_for_single_simulation_graph(40, 0)
         generate_avg_speed_graph()
         generate_avg_speed_graph_observable()
@@ -62,7 +65,7 @@ def generate_avg_speed_graph():
     simulations_per_nh = {}
     output_directory='avg_v_vs_time'
     for nh in range(30, 51, SKIP):
-        simulations_per_nh[nh] = load_simulation_data(nh, 0)
+        simulations_per_nh[nh] = load_simulation_data(nh, 0) 
 
     avg_speed_per_nh = {}
     dt_per_nh = {}
@@ -366,21 +369,27 @@ def generate_mean_frac_zombie_graph():
 
     # Plot the graph with `dt` on the x-axis
     plt.figure(figsize=(10, 6))
-    for nh in mean_zombie_frac_per_nh.keys():
+    for idx, nh in enumerate(mean_zombie_frac_per_nh.keys()):
         # Extract time and fraction values for plotting
         time_axis = list(mean_zombie_frac_per_nh[nh].keys())
         fraction_values = list(mean_zombie_frac_per_nh[nh].values())
         error_values = list(std_zombie_frac_per_nh[nh].values())
 
-        plt.errorbar(time_axis, fraction_values, yerr=error_values, label=f"nh = {nh}", fmt='o')
-
+        plt.plot(time_axis, fraction_values, label=f"$N_h = {nh}$", linewidth=2)
+        plt.fill_between(time_axis,
+                         np.array(fraction_values) - np.array(error_values),
+                         np.array(fraction_values) + np.array(error_values),
+                         alpha=0.2)
+    # Set y-axis limits to avoid negative values
+    plt.ylim(0, 1)
     # Add labels and title
-    plt.xlabel("Tiempo (s)")
-    plt.ylabel("$\\langle \\phi_z(t) \\rangle$")
-    plt.legend()
-    plt.grid(True)
+    plt.xlabel("Tiempo (s)", fontsize=14)
+    plt.ylabel("$\\langle \\phi_z(t) \\rangle$", fontsize=14)
+    plt.legend(loc="best", fontsize=12)
+    plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+
     # Define the output file path with dt in the filename
-    file_path = os.path.join(output_directory, f"frac_zombies_vs_time.png")
+    file_path = os.path.join(output_directory, "frac_zombies_vs_time_mean.png")
 
     # Save the plot to the file
     plt.savefig(file_path)
