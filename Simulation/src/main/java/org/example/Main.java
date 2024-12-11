@@ -35,7 +35,7 @@ public class Main {
                     for (double shootProbability = params.minShootProbability(); shootProbability <= params.maxShootProbability(); shootProbability += params.shootProbabilityIncrement()){
                         // Run the simulation
                         System.out.printf("Running simulation with nh: %d, repetition_no: %d, shoot probability: %s\n", nh, repetition_no, shootProbability);
-                        double dt = params.rMin() / (2 * params.vhMax());
+                        double dt = params.rMin() / (2 * Math.max(params.vhMax(), params.vzMax()));
                         SimulationParams simulationParams = new SimulationParams(
                                 nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(),
                                 new Constants(params.tau(), params.beta(), params.mu()), params.contagionTime(),
