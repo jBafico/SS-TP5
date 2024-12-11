@@ -8,11 +8,12 @@
     "withShooting": true,
     "withVariableProbability" : {
         "initialProbability": 0.1,
+        "repetitionFocusForTemporalEvolution" : 0,
         "finalProbability": 0.5,
         "probabilityStep": 0.1,
         "fixedNHforProb": 100,
-        "frac_zombie_observable": false,
-        "frac_zombie": false
+        "frac_zombie_observable": true,
+        "frac_zombie": true
     },
 
     "withFixedProbability" : {
@@ -23,7 +24,8 @@
         "avg_speed_temporal_shooting": false,
         "avg_speed_observable": false,
         "frac_zombie_shooting_fixed_nh_temporal" : false,
-        "frac_zombie_shooting_fixed_nh_observable": true
+        "frac_zombie_shooting_fixed_nh_observable": false,
+        "repetitionFocusForTemporalEvolution": 0
     }
     
 

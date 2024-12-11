@@ -21,7 +21,7 @@ def main():
     if config["withShooting"]:
         withFixedProbabilityConfig = config["withFixedProbability"]
         if withFixedProbabilityConfig["avg_speed_temporal_shooting"]:
-            avg_speed_temporal_shooting(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+            avg_speed_temporal_shooting(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"], withFixedProbabilityConfig["repetitionFocusForTemporalEvolution"])
             gc.collect()
         if withFixedProbabilityConfig["avg_speed_observable"]:
             generate_avg_speed_graph_observable_for_shooting_fixed_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
@@ -29,7 +29,7 @@ def main():
 
 
         if withFixedProbabilityConfig["frac_zombie_shooting_fixed_nh_temporal"]:
-            generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+            generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"],withFixedProbabilityConfig["repetitionFocusForTemporalEvolution"])
             gc.collect()
 
         if withFixedProbabilityConfig["frac_zombie_shooting_fixed_nh_observable"]:
@@ -39,11 +39,11 @@ def main():
 
         withVariableProbabilityConfig = config["withVariableProbability"]
         if withVariableProbabilityConfig["frac_zombie"]:
-            generate_frac_zombie_graph_shooting(withFixedProbabilityConfig["fixedNHforProb"], withFixedProbabilityConfig["initialProbability"], withFixedProbabilityConfig["finalProbability"], withFixedProbabilityConfig["probabilityStep"])
+            generate_frac_zombie_graph_shooting(withVariableProbabilityConfig["fixedNHforProb"], withVariableProbabilityConfig["initialProbability"], withVariableProbabilityConfig["finalProbability"], withVariableProbabilityConfig["probabilityStep"],withVariableProbabilityConfig["repetitionFocusForTemporalEvolution"])
             gc.collect()
 
         if withVariableProbabilityConfig["frac_zombie_observable"]:
-            generate_mean_frac_zombie_graph_shooting_observable_last_frame(withFixedProbabilityConfig["fixedNHforProb"],withFixedProbabilityConfig["initialProbability"],config["finalProbability"],withFixedProbabilityConfig["probabilityStep"])
+            generate_mean_frac_zombie_graph_shooting_observable_last_frame(withVariableProbabilityConfig["fixedNHforProb"],withVariableProbabilityConfig["initialProbability"],withVariableProbabilityConfig["finalProbability"],withVariableProbabilityConfig["probabilityStep"])
 
         return
 
@@ -611,7 +611,7 @@ def ensure_output_directory_creation(directory):
 
 
 
-def generate_frac_zombie_graph_shooting(fixedNH,initialProb, finalProb, probStep):
+def generate_frac_zombie_graph_shooting(fixedNH,initialProb, finalProb, probStep, repetition_no):
     ensure_output_directory_creation("frac_zombies_vs_time_probability")
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_probability = {}
@@ -632,7 +632,7 @@ def generate_frac_zombie_graph_shooting(fixedNH,initialProb, finalProb, probStep
         probability = scaled_prob / scale_factor
         print(probability)
         
-        simulations_per_probability[probability] = load_simulation_data(fixedNH, 6,None,f"{probability:.2f}" )
+        simulations_per_probability[probability] = load_simulation_data(fixedNH, repetition_no,None,f"{probability:.2f}" )
     zombie_frac_per_probability = {}
     dt_per_probability = {}
     for probability, simulations in simulations_per_probability.items():
@@ -819,7 +819,7 @@ def generate_mean_frac_zombie_graph_shooting_observable_last_frame(fixedNH,initi
 # NEW OBSERVABLES
 
 
-def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repetition_no: int = 0):
+def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repetition_no):
     """This graph has time as X axis and speed (for humans in blue and zombies in red) as Y axis"""
     # Load JSON data
 
@@ -869,7 +869,7 @@ def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repe
     plt.clf()
 
 
-def generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(initialNh, finalNh, stepNh, fixedProb):
+def generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(initialNh, finalNh, stepNh, fixedProb, repetition_no):
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
     output_directory='generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob'
@@ -877,7 +877,7 @@ def generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(initialNh, f
 
 
     for humans in range(initialNh, finalNh + 1, stepNh):
-        simulations_per_nh[humans] = load_simulation_data(humans, 0,None,f"{fixedProb}" )
+        simulations_per_nh[humans] = load_simulation_data(humans, repetition_no,None,f"{fixedProb}" )
     zombie_frac_per_nh = {}
     dt_per_nh = {}
     for nh, simulations in simulations_per_nh.items():
