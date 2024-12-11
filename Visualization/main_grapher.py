@@ -49,7 +49,7 @@ def main():
 
     if config["animations"]:
         # Load JSON data
-        data = load_simulation_data(100, 0, shoot_probability='0.10')
+        data = load_simulation_data(50, 0, shoot_probability='0.30')
 
         skip_frames = 20
         max_frames = 100000

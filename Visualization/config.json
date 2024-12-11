@@ -1,11 +1,11 @@
 {
-    "animations": false,
-    "frac_zombie": true,
-    "avg_v": true,
-    "repetitions":5,
+    "animations": true,
+    "frac_zombie": false,
+    "avg_v": false,
+    "repetitions":10,
     "skip" :10,
 
-    "withShooting": true,
+    "withShooting": false,
     "withVariableProbability" : {
         "initialProbability": 0.1,
         "repetitionFocusForTemporalEvolution" : 0,
