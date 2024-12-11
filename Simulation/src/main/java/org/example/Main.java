@@ -34,7 +34,8 @@ public class Main {
                     // Iterate through the different shoot probabilities
                     for (double shootProbability = params.minShootProbability(); shootProbability <= params.maxShootProbability(); shootProbability += params.shootProbabilityIncrement()){
                         // Run the simulation
-                        System.out.printf("Running simulation with nh: %d, repetition_no: %d, shoot probability: %s\n", nh, repetition_no, shootProbability);
+                        String formattedShootProbability = formatFloat(shootProbability);
+                        System.out.printf("Running simulation with nh: %d, repetition_no: %d, shoot probability: %s\n", nh, repetition_no, formattedShootProbability);
                         double dt = params.rMin() / (2 * Math.max(params.vhMax(), params.vzMax()));
                         SimulationParams simulationParams = new SimulationParams(
                                 nh, repetition_no, dt, params.maxTime(), params.arenaRadius(), params.vzMax(), params.vhMax(), params.sleepTime(), params.rMin(), params.rMax(), params.nonSpawnR(),
@@ -92,7 +93,6 @@ public class Main {
             String formattedShootProbability = formatFloat(shootProbability);
 
             // Define the output file with a unique name for each simulation result
-            System.out.printf("Shoot prob %s%n", formattedShootProbability);
             String filename = String.format("simulation_nh_%d_repetition_%d_shoot_probability_%s.json", results.params().nh(), results.params().repetition_no(), formattedShootProbability);
             File outputFile = new File(outputDirectoryPath, filename);
 

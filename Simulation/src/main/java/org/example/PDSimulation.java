@@ -32,6 +32,8 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
         List<Character> characterList = generateRandomCharacters(wall);
         resultsList.add(characterList);
 
+        int totalKills = 0;
+
         // Iterate until we reach maxTime or all characters are now zombies
         for (double dt = 0; dt < params.maxTime(); dt+=params.dt()) {
             iterationNo++;
@@ -104,6 +106,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                         human.shoot();
                         if (Math.random() < params.shootProbability()) {
                             shotCharacters.add(nearestZombie);
+                            totalKills++;
                         }
                     }
                 }
@@ -137,7 +140,7 @@ public class PDSimulation { // Pedestrian Dynamics Simulation represents the mod
                 .average()
                 .orElse(0);
 
-        System.out.println("Simulation finish status: " + simulationStatusMsg + " in " + iterationNo + " iterations");
+        System.out.println("Simulation finish status: " + simulationStatusMsg + " in " + iterationNo + " iterations. Total kills: " + totalKills + '\n');
         return new SimulationResults(params, resultsList, meanSpeed);
     }
 
