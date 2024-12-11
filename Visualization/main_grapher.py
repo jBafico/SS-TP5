@@ -19,12 +19,26 @@ def main():
     SKIP = config["skip"]
 
     if config["withShooting"]:
-        if config["frac_zombie"]:
-            generate_frac_zombie_graph_shooting(config["fixedNHforProb"], config["initialProbability"], config["finalProbability"], config["probabilityStep"])
-        if config["frac_zombie_observable"]:
-            generate_mean_frac_zombie_graph_shooting_observable(config["fixedNHforProb"],config["initialProbability"],config["finalProbability"],config["probabilityStep"])
-        return
+        withFixedProbabilityConfig = config["withFixedProbability"]
+        if withFixedProbabilityConfig["avg_speed_temporal_shooting"]:
+            avg_speed_temporal_shooting(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+        if withFixedProbabilityConfig["avg_speed_observable"]:
+            generate_avg_speed_graph_observable_for_shooting_fixed_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
 
+
+        if withFixedProbabilityConfig["frac_zombie_shooting_fixed_nh_temporal"]:
+            generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+
+        if withFixedProbabilityConfig["frac_zombie_shooting_fixed_nh_observable"]:
+            generate_mean_frac_zombie_graph_shooting_observable_last_frame_fixed_nh_variable_prob(withFixedProbabilityConfig["initialNh"],withFixedProbabilityConfig["finalNh"],withFixedProbabilityConfig["stepNh"],withFixedProbabilityConfig["probability"])
+
+
+        withVariableProbabilityConfig = config["withVariableProbability"]
+        if withVariableProbabilityConfig["frac_zombie"]:
+            generate_frac_zombie_graph_shooting(withFixedProbabilityConfig["fixedNHforProb"], withFixedProbabilityConfig["initialProbability"], withFixedProbabilityConfig["finalProbability"], withFixedProbabilityConfig["probabilityStep"])
+        if withVariableProbabilityConfig["frac_zombie_observable"]:
+            generate_mean_frac_zombie_graph_shooting_observable_last_frame(withFixedProbabilityConfig["fixedNHforProb"],withFixedProbabilityConfig["initialProbability"],config["finalProbability"],withFixedProbabilityConfig["probabilityStep"])
+        return
 
     if config["animations"]:
         # Load JSON data
@@ -110,7 +124,7 @@ def generate_avg_speed_graph_observable():
     # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
     mean_speed_per_nh_per_repetition: dict[float, list[float]] = {}
     output_directory='avg_v_vs_time'
-    for nh in range(30, 51, SKIP):
+    for nh in range(100, 101, SKIP):
         mean_speed_per_nh_per_repetition[nh] = []
         for rep in range(REPETITIONS):
             print('Loading nh:', nh, 'rep:', rep)
@@ -156,7 +170,7 @@ def generate_human_and_zombie_avg_speed_observable():
     zombie_speed_per_nh_per_repetition: dict[float, list[float]] = {}
     output_directory='avg_v_vs_time'
 
-    for nh in range(30, 51, SKIP):
+    for nh in range(100, 101, SKIP):
         human_speed_per_nh_per_repetition[nh] = []
         zombie_speed_per_nh_per_repetition[nh] = []
 
@@ -224,7 +238,7 @@ def generate_frac_zombie_graph():
     # Load JSON data (for nh in 10, 20, ..., 100)
     simulations_per_nh = {}
     output_directory='frac_zombies_vs_time'
-    for nh in range(30, 51, SKIP):
+    for nh in range(100, 101, SKIP):
         simulations_per_nh[nh] = load_simulation_data(nh, 0)
 
     zombie_frac_per_nh = {}
@@ -326,7 +340,7 @@ def generate_mean_frac_zombie_graph():
     output_directory='frac_zombies_vs_nh'
 
     # Iterate over the number of humans (nh) values
-    for nh in range(30, 51, SKIP):
+    for nh in range(100, 101, SKIP):
         total_humans_per_frame = {}
         total_zombies_per_frame = {}
         dt = None
@@ -405,7 +419,7 @@ def generate_mean_frac_zombie_in_all_frames_plot():
     std_dev_by_nh = {}
     output_directory='frac_zombies_vs_nh'
     # Iterate over the number of humans (nh) values
-    for nh in range(30, 51, SKIP):
+    for nh in range(100, 101, SKIP):
         last_zombie_fraction_in_simulation_repetition = []
 
         for rep in range(REPETITIONS):
@@ -610,7 +624,8 @@ def generate_frac_zombie_graph_shooting(fixedNH,initialProb, finalProb, probStep
     for scaled_prob in range(scaled_initial, scaled_final + 1, scaled_step):
         probability = scaled_prob / scale_factor
         print(probability)
-        simulations_per_probability[probability] = load_simulation_data(fixedNH, 0,None,f"{probability:.2f}" )
+        
+        simulations_per_probability[probability] = load_simulation_data(fixedNH, 6,None,f"{probability:.2f}" )
     zombie_frac_per_probability = {}
     dt_per_probability = {}
     for probability, simulations in simulations_per_probability.items():
@@ -710,15 +725,291 @@ def generate_mean_frac_zombie_graph_shooting_observable(fixedNH,initialProb, fin
         errors.append(np.std(repetition_values)) 
 
     # Add labels and title
-    plt.errorbar(x_axis, means, yerr=errors)
+    plt.errorbar(x_axis, means, yerr=errors, fmt="o")
     plt.xlabel("Probabilidades")
     plt.ylabel("$\\langle \\phi_z \\rangle$")
     plt.legend()
     plt.grid(True)
     # Define the output file path with dt in the filename
-    file_path = os.path.join(output_directory, f"frac_zombies_observables.png")
+    file_path = os.path.join(output_directory, f"frac_zombies_observables_{time.time()}.png")
     # Save the plot to the file
     plt.savefig(file_path)
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+
+
+
+def generate_mean_frac_zombie_graph_shooting_observable_last_frame(fixedNH,initialProb, finalProb, probStep):
+    # Initialize dictionaries to store results
+    probability_to_repetitions_factor_list: dict[str, list[float]] = {}
+    output_directory='frac_zombies_vs_probability_observable_solo_final'
+    ensure_output_directory_creation(output_directory)
+
+    dt = None
+
+
+    # Scale up by a factor of 100 to use integers
+    scale_factor = 100
+    scaled_initial = int(initialProb * scale_factor)
+    scaled_final = int(finalProb * scale_factor)
+    scaled_step = int(probStep * scale_factor)
+
+
+
+    for scaled_prob in range(scaled_initial, scaled_final + 1, scaled_step):
+        probability = scaled_prob / scale_factor
+        probability_to_repetitions_factor_list[probability] = []
+        for rep in range(0, REPETITIONS):
+            print("Loading repetition",rep,"for probability",probability)
+            simulation = load_simulation_data(fixedNH, rep,None,f"{probability:.2f}" )
+            if dt is None:
+                dt = __get_dt(simulation)  # Get dt from the first repetition
+
+            last_frame = simulation['results'][-1]  # Get the last frame
+            humans = 0
+            zombies = 0
+            # Count humans and zombies in the last frame
+            for entity in last_frame:
+                if entity["type"] == "human":
+                    humans += 1
+                elif entity["type"] == "zombie":
+                    zombies += 1
+            
+            probability_to_repetitions_factor_list[probability].append(zombies / (humans + zombies))
+            gc.collect()
+    
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    x_axis = []
+    # Calculate means and standard deviations
+    means = []
+    errors = []
+    for prob in probability_to_repetitions_factor_list.keys():
+        # Extract time and fraction values for plotting
+        x_axis.append(prob)
+        repetition_values = probability_to_repetitions_factor_list[prob]
+        means.append(np.mean(repetition_values))
+        errors.append(np.std(repetition_values)) 
+
+    # Add labels and title
+    plt.scatter(x=x_axis,y=means)
+    plt.errorbar(x_axis, means, yerr=errors, capsize=5, color="blue")
+    plt.xlabel("Probabilidades")
+    plt.ylabel("$\\langle \\phi_z \\rangle$")
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_observables_{time.time()}.png")
+    # Save the plot to the file
+    plt.savefig(file_path)
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+
+
+
+# NEW OBSERVABLES
+
+
+def avg_speed_temporal_shooting(initialNh, finalNh, stepNh ,fixedProb : str,repetition_no: int = 0):
+    """This graph has time as X axis and speed (for humans in blue and zombies in red) as Y axis"""
+    # Load JSON data
+
+    nh_to_avg_speed_simulation : dict[int,list] = {}
+    output_directory='avg_speed_temporal_shooting'
+    ensure_output_directory_creation(output_directory)
+    for humans in range(initialNh, finalNh+ 1, stepNh):
+        nh_to_avg_speed_simulation[humans] = load_simulation_data(humans, repetition_no, None ,fixedProb)
+    
+   
+    for humans in nh_to_avg_speed_simulation.keys():
+        nh_to_avg_speed_simulation[humans] = []
+
+    avg_speed_per_nh = {}
+    dt_per_nh = {}
+    for nh, simulations in nh_to_avg_speed_simulation.items():
+        results = simulations['results']
+        dt = __get_dt(simulations)
+        dt_per_nh[nh] = dt
+        avg_speed_per_dt = {}
+        for i, frame in enumerate(results):
+            # Calculate mean speed for entities in the frame
+            speed_modulus_sum_in_dt = sum(character['v'] for character in frame)
+            speed_modulus_avg_in_dt = speed_modulus_sum_in_dt / len(frame) if frame else 0
+            avg_speed_per_dt[i * dt] = speed_modulus_avg_in_dt
+        avg_speed_per_nh[nh] = avg_speed_per_dt
+        del nh_to_avg_speed_simulation[humans]
+        gc.collect()
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    for nh, avg_speed in avg_speed_per_nh.items():
+        # Extract time and average speed values for plotting
+        time_axis = list(avg_speed.keys())
+        speed_values = list(avg_speed.values())
+        plt.plot(time_axis, speed_values, label=f"nh = {nh}")
+
+    # Add labels and title
+    plt.xlabel("Tiempo (s)")
+    plt.ylabel("$\\bar{v}(m/s)$")
+    plt.legend()
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"avg_v_vs_time.png")
+    # Save the plot to the file
+    plt.savefig(file_path)
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+
+def generate_frac_zombie_graph_shooting_with_variable_nh_fixed_prob(initialNh, finalNh, stepNh, fixedProb):
+    ensure_output_directory_creation("frac_zombies_vs_time_probability")
+    # Load JSON data (for nh in 10, 20, ..., 100)
+    simulations_per_nh = {}
+    output_directory='frac_zombies_vs_time_probability_fixed_prob_variable_nh'
+    ensure_output_directory_creation(output_directory)
+
+
+    for humans in range(initialNh, finalNh + 1, stepNh):
+        simulations_per_nh[humans] = load_simulation_data(humans, 0,None,f"{fixedProb:.2f}" )
+    zombie_frac_per_nh = {}
+    dt_per_nh = {}
+    for humans, simulations in simulations_per_nh.items():
+        zombie_frac = []
+        results = simulations['results']
+        dt = __get_dt(simulations)
+        dt_per_nh[humans] = dt
+        for i, frame in enumerate(results):
+            humans = sum(1 for entity in frame if entity["type"] == "human")
+            zombies = sum(1 for entity in frame if entity["type"] == "zombie")
+            if humans + zombies > 0:
+                zombie_frac.append(zombies / (humans + zombies))
+            else:
+                zombie_frac.append(0)
+        zombie_frac_per_nh[humans] = zombie_frac
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    for humans, zombie_frac in zombie_frac_per_nh.items():
+        # Generate time axis based on dt
+        time_axis = [i * dt_per_nh[humans] for i in range(len(zombie_frac))]
+        plt.plot(time_axis, zombie_frac, label=f"$Nh$ = {humans}")
+
+    # Add labels and title
+    plt.xlabel("Tiempo (s)")
+    plt.ylabel("$\\phi_z(t)$")
+    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_vs_time_{time.time()}.png")
+    # Save the plot to the file
+    plt.savefig(file_path, bbox_inches='tight')  # Ensure the legend is included in the saved file
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+
+
+
+
+def generate_mean_frac_zombie_graph_shooting_observable_last_frame_fixed_nh_variable_prob(initialNh, finalNh, stepNh, fixedProb):
+    # Initialize dictionaries to store results
+    humans_to_repetitions_factor_list: dict[str, list[float]] = {}
+    output_directory='generate_mean_frac_zombie_graph_shooting_observable_last_frame_fixed_nh_variable_prob'
+    ensure_output_directory_creation(output_directory)
+
+
+    for humans in range(initialNh, finalNh + 1, stepNh):
+        humans_to_repetitions_factor_list[humans] = []
+        for rep in range(0, REPETITIONS):
+            print("Loading repetition",rep,"for probability",fixedProb, "Prob fixed, rep variable")
+            simulation = load_simulation_data(humans, rep,None,f"{fixedProb:.2f}" )
+            if dt is None:
+                dt = __get_dt(simulation)  # Get dt from the first repetition
+
+            last_frame = simulation['results'][-1]  # Get the last frame
+            humans = 0
+            zombies = 0
+            # Count humans and zombies in the last frame
+            for entity in last_frame:
+                if entity["type"] == "human":
+                    humans += 1
+                elif entity["type"] == "zombie":
+                    zombies += 1
+            
+            humans_to_repetitions_factor_list[humans].append(zombies / (humans + zombies))
+            gc.collect()
+    
+
+    # Plot the graph with `dt` on the x-axis
+    plt.figure(figsize=(10, 6))
+    x_axis = []
+    # Calculate means and standard deviations
+    means = []
+    errors = []
+    for humans in humans_to_repetitions_factor_list.keys():
+        # Extract time and fraction values for plotting
+        x_axis.append(humans)
+        repetition_values = humans_to_repetitions_factor_list[humans]
+        means.append(np.mean(repetition_values))
+        errors.append(np.std(repetition_values)) 
+
+    # Add labels and title
+    plt.scatter(x=x_axis,y=means)
+    plt.errorbar(x_axis, means, yerr=errors, capsize=5, color="blue")
+    plt.xlabel("Nh")
+    plt.ylabel("$\\langle \\phi_z \\rangle$")
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"frac_zombies_observables_{time.time()}.png")
+    # Save the plot to the file
+    plt.savefig(file_path)
+    # Optionally, you can clear the current figure to prevent overlay issues in future plots
+    plt.clf()
+
+
+def generate_avg_speed_graph_observable_for_shooting_fixed_prob(initialNh, finalNh, stepNh, fixedProb):
+    # Load JSON data for all repetitions for nh values (10, 20, ..., 100)
+    mean_speed_per_nh_per_repetition: dict[float, list[float]] = {}
+    output_directory='generate_avg_speed_graph_observable_for_shooting_fixed_prob'
+    ensure_output_directory_creation(output_directory)
+    for nh in range(initialNh, finalNh + 1, stepNh):
+        mean_speed_per_nh_per_repetition[nh] = []
+        for rep in range(REPETITIONS):
+            print('Loading nh:', nh, 'rep:', rep," for avg_speed_observable_fixed_nh")
+            simulation = load_simulation_data(nh, rep , f"{fixedProb:.2f}")
+            total_speed_in_simulation = 0
+            for frame in simulation['results']:
+                total_speed_in_simulation += sum(character['v'] for character in frame)
+            mean_speed_per_nh_per_repetition[nh].append(total_speed_in_simulation / (len(simulation['results']) * (nh + 1)))
+
+    avg_speed_per_nh = {}
+    std_dev_per_nh = {}
+
+    for nh, speed_list in mean_speed_per_nh_per_repetition.items():
+        # Compute the average speed and standard deviation across all repetitions for each nh
+        avg_speed_per_nh[nh] = np.mean(speed_list)
+        std_dev_per_nh[nh] = np.std(speed_list)
+
+    # Plotting the average speed for each nh value with error bars
+    plt.figure(figsize=(10, 6))
+    nh_values = list(avg_speed_per_nh.keys())
+    avg_speeds = list(avg_speed_per_nh.values())
+    std_devs = list(std_dev_per_nh.values())
+
+    plt.errorbar(nh_values, avg_speeds, yerr=std_devs, marker='o', linestyle='-', color='b', capsize=5)
+
+    # Add labels and title
+    plt.xlabel("$N_h$")
+    plt.ylabel("$\\bar{v}(m/s)$")
+    plt.grid(True)
+    # Define the output file path with dt in the filename
+    file_path = os.path.join(output_directory, f"avg_v_vs_nh_observable_{time.time()}.png")
+
+    # Save the plot to the file
+    plt.savefig(file_path)
+
     # Optionally, you can clear the current figure to prevent overlay issues in future plots
     plt.clf()
 
