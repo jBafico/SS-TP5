@@ -18,7 +18,7 @@ public class Human extends Character {
     public Human(Coordinates coordinates, Constants constants, CharacterConfig config, boolean inContagion, int shootReloadTime) {
         super(coordinates, constants, config, "human", inContagion);
         this.shootReloadTime = shootReloadTime;
-        this.shootReloadTimeLeft = 0;
+        this.shootReloadTimeLeft = shootReloadTime;
     }
 
     private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion, boolean inContagion, int shootReloadTime, int shootReloadTimeLeft) {
