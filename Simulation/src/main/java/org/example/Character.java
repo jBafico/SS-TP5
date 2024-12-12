@@ -27,9 +27,22 @@ public abstract class Character { //This class is the abstract class of the Enti
     @JsonIgnore
     private boolean inContagion; // Refers to if the character is in the process of contagion
     private final String type; // Type of character
+    @JsonIgnore
+    protected int shootReloadTime = 0; // The time it takes for the human to reload
+    protected int shootReloadTimeLeft = 0; // The time left for the human to reload
+    @JsonIgnore
+    protected boolean hasShot = false; // Whether the human has shot
+
+    public boolean canShoot() {
+        return this.shootReloadTimeLeft == 0;
+    }
+
+    public void shoot() {
+        this.hasShot = true;
+    }
 
     // Without contagion time
-    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, String type, boolean inContagion){
+    public Character(Coordinates coordinates, Constants constants, CharacterConfig config, String type, boolean inContagion, int shootReloadTime, int shootReloadTimeLeft) {
         this.coordinates = coordinates;
         this.constants = constants;
         this.config = config;
@@ -39,6 +52,8 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.remainingContagion = 0;
         this.type = type;
         this.inContagion = inContagion;
+        this.shootReloadTime = shootReloadTime;
+        this.shootReloadTimeLeft = shootReloadTimeLeft;
     }
 
     // With contagion time
@@ -64,6 +79,20 @@ public abstract class Character { //This class is the abstract class of the Enti
         this.remainingContagion = remainingContagion;
         this.type = type;
         this.inContagion = inContagion;
+    }
+
+    protected Character(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, String type, double remainingContagion, boolean inContagion, int shootReloadTime, int shootReloadTimeLeft) {
+        this.coordinates = coordinates;
+        this.constants = constants;
+        this.config = config;
+        this.r = r;
+        this.v = v;
+        this.theta = theta;
+        this.remainingContagion = remainingContagion;
+        this.type = type;
+        this.inContagion = inContagion;
+        this.shootReloadTime = shootReloadTime;
+        this.shootReloadTimeLeft = shootReloadTimeLeft;
     }
 
     public double getX(){

@@ -3,28 +3,12 @@ package org.example;
 import java.util.List;
 
 public class Human extends Character {
-    private final int shootReloadTime; // The time it takes for the human to reload
-    private final int shootReloadTimeLeft; // The time left for the human to reload
-    private boolean hasShot = false; // Whether the human has shot
-
-    public boolean canShoot() {
-        return this.shootReloadTimeLeft == 0;
-    }
-
-    public void shoot() {
-        this.hasShot = true;
-    }
-
     public Human(Coordinates coordinates, Constants constants, CharacterConfig config, boolean inContagion, int shootReloadTime) {
-        super(coordinates, constants, config, "human", inContagion);
-        this.shootReloadTime = shootReloadTime;
-        this.shootReloadTimeLeft = shootReloadTime;
+        super(coordinates, constants, config, "human", inContagion, shootReloadTime, shootReloadTime);
     }
 
     private Human(Coordinates coordinates, Constants constants, CharacterConfig config, double v, double theta, double r, double remainingContagion, boolean inContagion, int shootReloadTime, int shootReloadTimeLeft) {
-        super(coordinates, constants, config, v, theta, r, "human", remainingContagion, inContagion);
-        this.shootReloadTime = shootReloadTime;
-        this.shootReloadTimeLeft = shootReloadTimeLeft;
+        super(coordinates, constants, config, v, theta, r, "human", remainingContagion, inContagion, shootReloadTime, shootReloadTimeLeft);
     }
 
     @Override
